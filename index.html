@@ -153,10 +153,57 @@
     .sel-in { width: 100%; padding: 0.3rem 0.4rem; border: 1px solid #cbd5e1; border-radius: 0.375rem; background: #f8fafc; font-size: 12px; font-weight: 500; }
 
     /* Eigenvalue ruler under the load slider */
-    #eigRuler { position: relative; height: 26px; margin: 2px 9px 0; }
+    #eigRuler { position: relative; height: 26px; margin: 2px 11px 0; }
+    @media (pointer: coarse) { #eigRuler { margin: 2px 13px 0; } }
     #eigRuler .tick { position: absolute; top: 0; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; cursor: pointer; }
     #eigRuler .tick .bar { width: 2px; height: 8px; border-radius: 1px; }
     #eigRuler .tick .lbl { font-size: 10px; font-weight: 700; line-height: 1.1; padding: 1px 4px; border-radius: 4px; white-space: nowrap; }
+    #eigRuler .tick .lbl sub { font-size: 75%; line-height: 0; }
+    #eigRuler .tick.pcr { z-index: 1; }
+    #eigRuler .tick.pcr .bar { width: 3px; height: 9px; background: #0f172a !important; }
+    #eigRuler .tick.pcr .lbl { box-shadow: inset 0 0 0 1.2px #0f172a; }
+    @container (max-width: 340px) { .ruler-row > span { display: none; } .ruler-row #eigRuler { grid-column: 1 / -1; } }
+
+    /* Pcr marker drawn on the load sliders' track (--pcr = 0…1 set by script; < 0 hides it) */
+    input[type="range"].slider-thumb.has-pcr { --pcr: -1; }
+    input[type="range"].slider-thumb.has-pcr::-webkit-slider-runnable-track {
+      background:
+        linear-gradient(to right, transparent 0 calc(var(--tw) / 2 + (100% - var(--tw)) * var(--pcr) - 1.5px), #0f172a 0 calc(var(--tw) / 2 + (100% - var(--tw)) * var(--pcr) + 1.5px), transparent 0),
+        linear-gradient(to right, var(--sl) 0 calc(var(--tw) / 2 + (100% - var(--tw)) * var(--p)), #e2e8f0 0);
+    }
+    input[type="range"].slider-thumb.has-pcr::-moz-range-track {
+      background:
+        linear-gradient(to right, transparent 0 calc(var(--tw) / 2 + (100% - var(--tw)) * var(--pcr) - 1.5px), #0f172a 0 calc(var(--tw) / 2 + (100% - var(--tw)) * var(--pcr) + 1.5px), transparent 0),
+        linear-gradient(to right, var(--sl) 0 calc(var(--tw) / 2 + (100% - var(--tw)) * var(--p)), #e2e8f0 0);
+    }
+    input[type="range"].slider-thumb.has-pcr::-moz-range-progress { background: transparent; }
+    .pcr-chip { display: inline-flex; align-items: center; gap: 0.3rem; margin-top: 0.3rem; font-size: 11px; font-weight: 700; color: #9f1239; background: #fff1f2; border: 1px solid #fecdd3; border-radius: 0.375rem; padding: 0.05rem 0.45rem; white-space: nowrap; cursor: pointer; }
+    .pcr-chip sub { font-size: 75%; }
+    .pcr-swatch { display: inline-block; width: 3px; height: 11px; border-radius: 1px; background: #0f172a; }
+
+    /* Eigenvalue cards (P1 = Pcr, P2, P3, ...) */
+    .eig-card { display: flex; flex-direction: column; align-items: center; gap: 1px; min-width: 0; overflow: hidden; padding: 0.25rem 0.1rem 0.3rem; border-radius: 0.55rem; border: 1.5px solid #e2e8f0; background: #fff; line-height: 1.15; transition: border-color 0.12s, background 0.12s, box-shadow 0.12s; }
+    .eig-card svg { display: block; color: #2563eb; }
+    .eig-card .ec-name { font-size: 11px; font-weight: 800; color: #0f172a; white-space: nowrap; }
+    .eig-card .ec-name sub { font-size: 75%; }
+    .eig-card.pcr .ec-name { color: #be123c; }
+    .eig-card .ec-ratio { font-size: 10px; font-weight: 600; color: #475569; white-space: nowrap; }
+    .eig-card .ec-val { font-size: 10px; color: #64748b; white-space: nowrap; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    .eig-card .ec-st { font-size: 9.5px; font-weight: 700; padding: 0 4px; border-radius: 4px; white-space: nowrap; margin-top: 1px; }
+    .eig-card[data-st="under"] { border-color: #a7f3d0; }
+    .eig-card[data-st="under"] .ec-st { color: #047857; background: #d1fae5; }
+    .eig-card[data-st="eq"] { border-color: #f59e0b; background: #fffbeb; box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.25); }
+    .eig-card[data-st="eq"] .ec-st { color: #b45309; background: #fef3c7; }
+    .eig-card[data-st="over"] { border-color: #fecdd3; }
+    .eig-card[data-st="over"] .ec-st { color: #be123c; background: #ffe4e6; }
+    @media (hover: hover) { .eig-card:hover { border-color: #2563eb; } }
+    .eig-help summary { cursor: pointer; font-weight: 700; color: #4338ca; list-style: none; }
+    .eig-help summary::-webkit-details-marker { display: none; }
+    .eig-help summary::before { content: '▸ '; }
+    .eig-help[open] summary::before { content: '▾ '; }
+    .eig-help ul { list-style: disc; padding-left: 1rem; margin: 0.3rem 0 0; }
+    .eig-help li { margin: 0.2rem 0; }
+    .explain .eig-intro { background: #eef2ff; border: 1px solid #e0e7ff; border-radius: 0.4rem; padding: 0.3rem 0.55rem; color: #3730a3; font-size: 12px; }
 
     /* Support-condition cards */
     .bc-card { border: 1.5px solid #e2e8f0; border-radius: 0.6rem; padding: 0.35rem 0.3rem; background: #fff; text-align: center; transition: all 0.15s; }
@@ -248,38 +295,59 @@
       <!-- Load P -->
       <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4">
         <div class="flex justify-between items-start mb-2 gap-2">
-          <h2 class="font-bold text-slate-800 text-sm flex items-center gap-2"><i class="fa-solid fa-arrow-down text-rose-500"></i> 축방향 압축하중 P</h2>
+          <div class="min-w-0">
+            <h2 class="font-bold text-slate-800 text-sm flex items-center gap-2"><i class="fa-solid fa-arrow-down text-rose-500"></i> 축방향 압축하중 P</h2>
+            <div id="pcrChip" class="pcr-chip" onclick="setRatio(1)" title="임계하중 Pcr = 가장 작은 고유값 P₁. 슬라이더 위의 검은 눈금이 Pcr 위치입니다 (클릭하면 P = Pcr).">P<sub>cr</sub> = P₁ = –</div>
+          </div>
           <div class="text-right leading-tight">
             <div id="pReadout" class="text-lg font-extrabold text-rose-600">0 kN</div>
-            <div id="pRatioReadout" class="text-[11px] font-semibold text-slate-500">P / P₁ = 0.00</div>
+            <div id="pRatioReadout" class="text-[11px] font-semibold text-slate-500">P / P<sub>cr</sub> = 0.000</div>
           </div>
         </div>
         <div class="cq space-y-1">
           <div class="param-row" data-field="P">
             <label class="pr-label pr-main" for="pNum">하중 P</label>
-            <input type="range" id="pSlider" class="slider-thumb big accent-rose-500" min="0" max="100" step="any" value="0" aria-label="하중 P">
+            <input type="range" id="pSlider" class="slider-thumb big has-pcr accent-rose-500" min="0" max="100" step="any" value="0" aria-label="하중 P">
             <span class="pr-num"><input type="number" id="pNum" class="num-in" value="0" step="any" inputmode="decimal" enterkeyhint="done" autocomplete="off"><span id="pUnit" class="pr-unit">kN</span></span>
           </div>
-          <div class="param-row"><span></span><div id="eigRuler" title="고유값(임계하중) 위치 — 클릭하면 그 하중으로 이동"></div><span></span></div>
+          <div class="param-row ruler-row"><span></span><div id="eigRuler" title="고유값 Pn 위치 (P₁ = Pcr) — 클릭하면 그 하중으로 이동"></div><span></span></div>
           <div class="param-row" data-field="ratio">
-            <label id="ratioLabel" class="pr-label" for="ratioNum">P / P₁</label>
-            <input type="range" class="slider-thumb accent-purple-500" min="0" max="3" step="any" value="0" aria-label="P/Pcr">
-            <span class="pr-num"><input type="number" id="ratioNum" class="num-in" value="0" step="0.01" inputmode="decimal" enterkeyhint="done" autocomplete="off"><span class="pr-unit">× P₁</span></span>
+            <label id="ratioLabel" class="pr-label" for="ratioNum">P / P<sub>cr</sub></label>
+            <input type="range" class="slider-thumb has-pcr accent-purple-500" min="0" max="3" step="any" value="0" aria-label="P/Pcr">
+            <span class="pr-num"><input type="number" id="ratioNum" class="num-in" value="0" step="0.01" inputmode="decimal" enterkeyhint="done" autocomplete="off"><span class="pr-unit">× P<sub>cr</sub></span></span>
           </div>
         </div>
         <div class="grid grid-cols-6 gap-1 mt-2" id="quickLoads">
           <button class="qbtn" onclick="setRatio(0)">0</button>
-          <button class="qbtn" onclick="setRatio(0.5)">0.5P₁</button>
-          <button class="qbtn" onclick="setRatio(0.9)">0.9P₁</button>
-          <button class="qbtn" onclick="setRatio(1)">P₁</button>
-          <button class="qbtn" onclick="setRatio(1.5)">1.5P₁</button>
-          <button class="qbtn" onclick="setToEig(1)">P₂</button>
+          <button class="qbtn" onclick="setRatio(0.5)">0.5P<sub>cr</sub></button>
+          <button class="qbtn" onclick="setRatio(0.9)">0.9P<sub>cr</sub></button>
+          <button class="qbtn" onclick="setRatio(1)" title="P = Pcr (= P₁, 1차 고유값)">P<sub>cr</sub></button>
+          <button class="qbtn" onclick="setRatio(1.5)">1.5P<sub>cr</sub></button>
+          <button class="qbtn" onclick="setToEig(1)" title="P = P₂ (2차 모드의 고유값)">P₂</button>
         </div>
         <div class="flex gap-1.5 mt-2">
           <button id="rampUp" onclick="toggleRamp(1)" class="flex-1 py-1.5 text-xs font-bold rounded-lg bg-rose-500 hover:bg-rose-600 text-white transition"><i class="fa-solid fa-play mr-1"></i>서서히 증가</button>
           <button id="rampDown" onclick="toggleRamp(-1)" class="flex-1 py-1.5 text-xs font-bold rounded-lg bg-slate-600 hover:bg-slate-700 text-white transition"><i class="fa-solid fa-backward mr-1"></i>서서히 감소</button>
         </div>
-        <p class="text-[10px] text-slate-400 mt-1.5 leading-snug">눈금 P₁, P₂, P₃ … 은 현재 지지조건의 고유값(n차 임계하중)입니다. 고유치 탭에서는 P<sub>n</sub> 근처에서 슬라이더가 자석처럼 붙습니다.</p>
+        <!-- Eigenvalues P1 (= Pcr), P2, P3, ... with their mode shapes -->
+        <div class="mt-3 rounded-lg border border-slate-200 bg-slate-50 p-2">
+          <div class="flex items-baseline justify-between gap-2">
+            <span class="text-[11px] font-bold text-slate-700"><i class="fa-solid fa-layer-group text-indigo-500 mr-1"></i>고유값 P<sub>n</sub> = n차 모드의 임계하중</span>
+            <span class="text-[10px] text-slate-400 whitespace-nowrap">클릭 → 그 하중으로</span>
+          </div>
+          <div id="eigTable" class="grid grid-cols-4 gap-1 mt-1.5"></div>
+          <details id="eigHelp" class="eig-help mt-1.5 text-[10.5px] leading-snug text-slate-600">
+            <summary>P₁, P₂, P₃ … 은 정확히 무엇인가요?</summary>
+            <ul>
+              <li><b>고유값 P<sub>n</sub></b> = 곧은 기둥이 위 그림의 <b>n차 모드 모양으로 휜 채로도 평형</b>을 이룰 수 있는 특정한 하중. 미분방정식 EIv″ + Pv = 0과 <b>모든</b> 경계조건을 만족하는 0이 아닌 해(v ≠ 0)는 하중이 정확히 P<sub>1</sub>, P<sub>2</sub>, P<sub>3</sub> … 일 때만 존재합니다.</li>
+              <li id="eigHelpBC"></li>
+              <li><b>P₁ = P<sub>cr</sub></b> (가장 작은 고유값): 하중을 0부터 올리면 기둥은 <b>항상 여기서, 1차 모드로</b> 먼저 좌굴합니다 → 설계에 쓰는 임계하중.</li>
+              <li><b>P₂, P₃ …</b>: 수학적으로 존재하는 더 높은 해. 중간 횡지지 등으로 <b>낮은 모드를 막아야만</b> 실제로 나타납니다 (프리셋 ④).</li>
+              <li><b>고유값 사이의 하중</b> (예: P₁ &lt; P &lt; P₂): 선형 이론의 해는 곧은 상태 v = 0뿐입니다 (모드가 섞인 중간 형상이 생기는 것이 아님). 다만 P &gt; P₁이면 그 곧은 상태가 불안정해 실제 기둥은 1차 모드로 크게 휩니다.</li>
+              <li>카드 색 = 현재 하중과 비교: <b class="text-emerald-700">초록</b> P &lt; P<sub>n</sub> · <b class="text-amber-600">노랑</b> P = P<sub>n</sub> · <b class="text-rose-600">빨강</b> P &gt; P<sub>n</sub> (곧은 상태가 그 모드에 대해 불안정). 고유치 탭에서는 P<sub>n</sub> 근처에서 슬라이더가 자석처럼 붙습니다.</li>
+            </ul>
+          </details>
+        </div>
       </div>
 
       <!-- Support conditions -->
@@ -361,6 +429,7 @@
           <label class="flex items-center gap-2 text-xs text-slate-700 cursor-pointer select-none">
             <input type="checkbox" id="noiseChk" checked class="accent-amber-500"> 미소 외란 자동 (현실: 진동·바람·불균일)
           </label>
+          <p class="text-[10px] text-slate-400 leading-snug -mt-1">자동 미소 외란은 그림의 미세한 떨림과, P &gt; P<sub>cr</sub>에서 곧은 기둥의 좌굴을 촉발하는 데만 쓰입니다. 수치(v<sub>max</sub>, σ<sub>max</sub>)는 이 떨림을 빼고 표시하므로 가만히 두면 값이 고정됩니다.</p>
           <div class="flex gap-1.5">
             <button onclick="kick(-1)" class="flex-1 py-2 text-xs font-bold rounded-lg bg-amber-500 hover:bg-amber-600 text-white transition"><i class="fa-solid fa-hand-point-left mr-1"></i>외란 ←</button>
             <button onclick="kick(1)" class="flex-1 py-2 text-xs font-bold rounded-lg bg-amber-500 hover:bg-amber-600 text-white transition">외란 →<i class="fa-solid fa-hand-point-right ml-1"></i></button>
@@ -1041,22 +1110,52 @@
             straight state unstable above P_cr, stable buckled states ±q* on the elastica.
        ========================================================================== */
     const W0 = 2 * Math.PI * 1.1, ZETA = 0.13;
-    function makeSim(cfg) { return { cfg, T: getPath(cfg), q: 0, v: 0, limit: false }; }
+    // q, v: state used for every reported number.  j, jv: visual-only micro-tremor (drawing only).
+    function makeSim(cfg) { return { cfg, T: getPath(cfg), q: 0, v: 0, j: 0, jv: 0, limit: false }; }
+    // Static residual of the single-mode model: F(q) = q(1 − λ/λ_path(|q|)) − q₀   (F = 0 ⇔ equilibrium)
+    const simF = (T, lam, q0, q) => q * (1 - lam / lamPath(T, q)) - q0;
     function simStep(sim, lam, q0, dt, noiseOn) {
       const T = sim.T;
-      if (!T || T.rows.length < 2) { sim.q = 0; sim.v = 0; return; }
+      if (!T || T.rows.length < 2) { sim.q = 0; sim.v = 0; sim.j = 0; sim.jv = 0; return; }
       const aRef = 1e-4 / T.d_a;
       const nSub = Math.max(1, Math.ceil(dt * 500)), hh = dt / nSub;
       const sigma = noiseOn ? aRef * Math.sqrt(4 * ZETA * W0 ** 3) * Math.sqrt(3 / hh) : 0;
+      const F = q => simF(T, lam, q0, q);
       sim.limit = false;
       for (let i = 0; i < nSub; i++) {
-        const lp = lamPath(T, sim.q);
-        let acc = -W0 * W0 * (sim.q * (1 - lam / lp) - q0) - 2 * ZETA * W0 * sim.v;
-        if (sigma) acc += sigma * (Math.random() * 2 - 1);
+        // local stiffness dF/dq on the scale of the micro-disturbance (< 0: the present state is unstable)
+        const kLoc = (F(sim.q + aRef) - F(sim.q - aRef)) / (2 * aRef);
+        const grows = kLoc < 0;
+        let acc = -W0 * W0 * F(sim.q) - 2 * ZETA * W0 * sim.v;
+        // The automatic micro-disturbance acts on the real state only where it can grow (e.g. a straight
+        // column with P > Pcr → it triggers buckling). Around a stable equilibrium it only makes the drawing
+        // tremble (sim.j), so v_max and σ_max stay fixed while the column is left alone.
+        if (sigma && grows) acc += sigma * (Math.random() * 2 - 1);
         sim.v += acc * hh;
         sim.q += sim.v * hh;
         if (Math.abs(sim.q) >= T.aMax) { sim.q = Math.sign(sim.q) * T.aMax; sim.v = 0; sim.limit = true; }
+        // visual tremor: linear oscillator with the local stiffness (slower and larger as P → Pcr)
+        let aj = -W0 * W0 * Math.max(kLoc, 0.02) * sim.j - 2 * ZETA * W0 * sim.jv;
+        if (sigma && !grows) aj += sigma * (Math.random() * 2 - 1);
+        sim.jv += aj * hh;
+        sim.j += sim.jv * hh;
       }
+      settleIfAtRest(sim, F, aRef);
+    }
+    // When a free vibration has died out next to a stable equilibrium, put the column exactly on it
+    // (otherwise the last displayed digits would keep drifting for many seconds after a disturbance).
+    function settleIfAtRest(sim, F, aRef) {
+      if (sim.limit || Math.abs(sim.v) > 2 * aRef * W0) return;
+      let q = sim.q;
+      const h = 0.01 * aRef;
+      for (let it = 0; it < 5; it++) {
+        const k = (F(q + h) - F(q - h)) / (2 * h);
+        if (!(k > 0)) return;                    // unstable / neutral: let the dynamics decide
+        const dq = F(q) / k;
+        q -= dq;
+        if (Math.abs(dq) < 1e-12 * aRef) break;
+      }
+      if (isFinite(q) && Math.abs(q - sim.q) < 2 * aRef) { sim.q = q; sim.v = 0; }
     }
     function simKick(sim, dir, size = 0.05) {
       if (!sim.T || sim.T.rows.length < 2) return;
@@ -1148,6 +1247,11 @@
       const lamCr = T.rows[0].lam;
       const atLimit = Math.abs(sim.q) >= T.aMax * 0.999 && T.rows.length > 1;
       return { sh, sh0, m, Mmax, imax, sigAx, sigmax, lamCr, atLimit, dmax: Math.abs(sh.dmax), q0 };
+    }
+    // Geometry used only for drawing: state + visual micro-tremor (numbers always come from simInfo)
+    function drawShape(sim) {
+      if (!sim.bufD) sim.bufD = shapeAt(sim.T, 0);
+      return shapeAt(sim.T, sim.q + (sim.j || 0), sim.bufD);
     }
 
     /* ==========================================================================
@@ -1383,6 +1487,7 @@
 
     function drawRealView(ctx, W, H) {
       const sim = mainSim, cfg = D.cfg, info = simInfo(sim), sh = info.sh;
+      const shD = drawShape(sim);        // drawn geometry (includes the visual micro-tremor)
       const top = 96, bot = 52;
       const Hc = Math.max(60, H - top - bot);
       const cx = state.showM ? W * 0.40 : W * 0.5;
@@ -1398,11 +1503,11 @@
       for (let i = 0; i < n; i++) { minY = Math.min(minY, sh.y[i]); maxY = Math.max(maxY, sh.y[i]); }
       if (state.showLe) drawLeBracket(ctx, g, cfg, D.eig, Math.min(cx - 24, 62 + Math.max(0, -minY) * Hc * g.sc), 1);
       if (state.showLe && cfg.top === 'free' && !cfg.brace) {
-        const amp = sh.y[n - 1] * Hc * g.sc;
+        const amp = shD.y[n - 1] * Hc * g.sc;
         if (Math.abs(amp) > 2) drawFFExtension(ctx, g, s => 1 - Math.cos(Math.PI * s / 2), amp);
       }
       // column body colored by stress ratio
-      const P = colPts(g, sh.x, sh.y, n);
+      const P = colPts(g, shD.x, shD.y, n);
       const sigAx = info.sigAx, f = D.EI / state.L * 1e6 * D.c / D.I;
       strokeColumn(ctx, P, i => stressColor((sigAx + Math.abs(info.m[i]) * f) / state.sy), 6);
       // supports
@@ -1418,7 +1523,7 @@
       // inflection points of the current shape
       if (state.showLe && info.dmax > 0.004) {
         for (const z of zeroCrossings(sh.s, sh.k, cfg, 0.02)) {
-          const X = g.cx + interpAt(sh.s, sh.y, z) * Hc * g.sc, Y = g.baseY - interpAt(sh.s, sh.x, z) * Hc;
+          const X = g.cx + interpAt(shD.s, shD.y, z) * Hc * g.sc, Y = g.baseY - interpAt(shD.s, shD.x, z) * Hc;
           ctx.strokeStyle = COL.warn; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(X, Y, 5, 0, 2 * Math.PI); ctx.stroke();
         }
       }
@@ -1483,6 +1588,9 @@
       let trial = null;
       if (!cfg.brace && lam > 0.05) trial = trialEval(cfg.bc, k);
       const pulse = Math.sin(animT * 2 * Math.PI / 2.6);
+      // where the current load sits between the eigenvalues (P₁ = Pcr < P₂ < P₃ …)
+      const kNext = D.Pn.findIndex(p => p > state.P);
+      const betweenTxt = kNext === 0 ? 'P < P₁' : kNext < 0 ? `P > P${SUB[D.Pn.length]}` : `P${SUB[kNext]}<P<P${SUB[kNext + 1]}`;
       if (im >= 0) {
         // P = P_n : the n-th mode satisfies all BCs; amplitude C₁ undetermined
         const md = D.eig.modes[im];
@@ -1525,10 +1633,10 @@
             ctx.beginPath(); ctx.moveTo(tipX, tipY + 10); ctx.lineTo(tipX, tipY - len); ctx.stroke(); ctx.setLineDash([]);
             txt(ctx, 'v′(L) ≠ 0 (끝단 기울기)', tipX + 10, tipY - len + 4, COL.bad, 'bold 11px Inter', 'left');
           }
-          badge(ctx, 'P ≠ Pn : 해는 v = 0 뿐', 10, 10, COL.ok);
+          badge(ctx, `${betweenTxt} : 해는 v=0 뿐`, 10, 10, COL.ok);
           txt(ctx, '점선 = 시행해', 10, 48, COL.trial, 'bold 11px Inter', 'left');
         } else {
-          badge(ctx, lam <= 0.05 ? 'P ≈ 0 : 축력 없음' : 'P ≠ Pn : 해는 v = 0 뿐', 10, 10, COL.ok);
+          badge(ctx, lam <= 0.05 ? 'P ≈ 0 : 축력 없음' : `${betweenTxt} : 해는 v=0 뿐`, 10, 10, COL.ok);
           if (cfg.brace) txt(ctx, '횡지지: FEM 모드 →', 10, 48, COL.dim, '11px Inter', 'left');
         }
       }
@@ -1537,26 +1645,31 @@
       if (cfg.brace) drawBrace(ctx, cx, g.baseY - cfg.a * Hc);
       if (!(trial && trial.type === 'line' && im < 0)) drawLoad(ctx, cx, yl, `P = ${fmtF(state.P)}`);
       txt(ctx, `kL = √(P/EI)·L = ${fmtNum(k, 3)}`, 10, 64, COL.dim, '11px Inter', 'left');
-      txt(ctx, `P/P₁ = ${fmtNum(state.P / D.Pcr, 3)}`, 10, 80, COL.dim, '11px Inter', 'left');
+      txt(ctx, `P/Pcr = ${fmtNum(state.P / D.Pcr, 3)}  (Pcr = P₁)`, 10, 80, COL.dim, '11px Inter', 'left');
 
-      // ---- mode gallery ----
+      // ---- mode gallery: eigenvalue P_n and its mode shape ----
       const gx0 = narrow ? 0 : mainW, gy0 = narrow ? top + Hc + bot - 6 : 0;
       const gW = narrow ? W : W - mainW, gH = narrow ? H - gy0 : H;
       const nm = Math.min(4, D.eig.modes.length);
       const cw = gW / nm;
-      txt(ctx, '고유 모드 (FEM) — 현재 하중 기준 안정성', gx0 + gW / 2, gy0 + 16, COL.dim, 'bold 11px Inter');
+      ctx.font = 'bold 11px Inter';
+      const gTitle = ['고유값 Pn = 기둥이 n차 모드 모양으로 휜 채 평형을 이룰 수 있는 하중', '고유값 Pn = n차 모드로 휜 평형이 가능한 하중', '고유값 Pn과 모드 형상']
+        .find(s => ctx.measureText(s).width < gW - 12) || '고유값 Pn';
+      txt(ctx, gTitle, gx0 + gW / 2, gy0 + 16, COL.dim, 'bold 11px Inter');
       for (let i = 0; i < nm; i++) {
         const md = D.eig.modes[i], Pi = D.Pn[i];
         const x0 = gx0 + i * cw, mcx = x0 + cw / 2;
-        const t = 80, b = 50, hh = Math.max(40, gH - t - b - 6);
+        const t = 92, b = 50, hh = Math.max(40, gH - t - b - 6);
         const by = gy0 + t + hh;
-        const rel = state.P / Pi;
+        const rel = state.P / Pi, nS = SUB[i + 1];
         const stc = Math.abs(rel - 1) < 0.004 ? COL.warn : rel > 1 ? COL.bad : COL.ok;
-        const stl = Math.abs(rel - 1) < 0.004 ? '중립' : rel > 1 ? '불안정 (P > Pn)' : '안정 (P < Pn)';
+        const stl = Math.abs(rel - 1) < 0.004 ? `P = P${nS} (중립)` : rel > 1 ? `P > P${nS} : 불안정` : `P < P${nS} : 안정`;
         ctx.strokeStyle = stc; ctx.lineWidth = i === im ? 2.5 : 1.2;
         ctx.beginPath(); ctx.roundRect ? ctx.roundRect(x0 + 4, gy0 + 24, cw - 8, gH - 30, 8) : ctx.rect(x0 + 4, gy0 + 24, cw - 8, gH - 30); ctx.stroke();
-        txt(ctx, `n = ${i + 1}`, mcx, gy0 + 40, COL.text, 'bold 12px Inter');
-        txt(ctx, `P${SUB[i + 1]} = ${fmtNum(Pi / D.Pcr, 2)} P₁`, mcx, gy0 + 54, COL.dim, '10px Inter');
+        txt(ctx, `${i + 1}차 모드`, mcx, gy0 + 40, COL.text, 'bold 12px Inter');
+        if (i === 0) txt(ctx, 'P₁ = Pcr', mcx, gy0 + 55, COL.load, 'bold 11px Inter');
+        else txt(ctx, `P${nS} = ${fmtNum(Pi / D.Pcr, 2)} Pcr`, mcx, gy0 + 55, COL.text, '10px Inter');
+        txt(ctx, i === 0 ? '실제 좌굴 모드' : '낮은 모드 구속 시', mcx, gy0 + 69, COL.dim, '9.5px Inter');
         const ma = Math.min(cw * 0.3, hh * 0.25);
         strokePath(ctx, [[mcx, by], [mcx, by - hh]], COL.faint, 1, [4, 4]);
         strokePath(ctx, md.s.map((s, j) => [mcx + md.v[j] * ma, by - s * hh]), stc, 3);
@@ -1575,7 +1688,7 @@
       const Hc = Math.max(50, H - top - bot);
       canvasMeta = null;
       D.cmp.forEach((c, i) => {
-        const sim = cmpSims[c.bc], info = simInfo(sim), sh = info.sh;
+        const sim = cmpSims[c.bc], info = simInfo(sim), sh = info.sh, shD = drawShape(sim);
         const cx = i * cw + cw / 2;
         const ym = maxAbs(sh.y);
         const scl = Math.min(state.scale, ym > 0 ? 0.42 * cw / (ym * Hc) : state.scale);
@@ -1587,7 +1700,7 @@
         txt(ctx, `K = ${fmtNum(K, 3)}  ·  Pcr = ${fmtNum(c.Pcr / D.Ppp, 3)} P(핀-핀)`, cx, 34, COL.dim, '10px Inter');
         if (state.showGhost) strokePath(ctx, [[cx, g.baseY], [cx, g.baseY - Hc]], COL.faint, 1.5, [5, 5]);
         if (state.showLe) drawLeBracket(ctx, g, c.cfg, c.eig, Math.min(cw * 0.4, 46), 0.85);
-        const P = colPts(g, sh.x, sh.y, sh.x.length);
+        const P = colPts(g, shD.x, shD.y, shD.x.length);
         const f = D.EI / state.L * 1e6 * D.c / D.I;
         strokeColumn(ctx, P, j => stressColor((info.sigAx + Math.abs(info.m[j]) * f) / state.sy), 5);
         drawBottomSupport(ctx, B.bot, cx, g.baseY, 0.8);
@@ -1773,14 +1886,14 @@
           dot(ctx, X(ratio), Y(Math.max(-ym, Math.min(ym, g))), 5, '#fff', 'rgba(255,255,255,0.25)');
         }
         ctx.restore();
-        eigR.forEach((r, i) => { if (r <= xMax) txt(ctx, `P${SUB[i + 1]}`, X(r), box1.y + 12, COL.warn, 'bold 10px Inter'); });
+        eigR.forEach((r, i) => { if (r <= xMax) txt(ctx, i === 0 ? 'P₁=Pcr' : `P${SUB[i + 1]}`, X(r), box1.y + 12, COL.warn, 'bold 10px Inter'); });
       } else {
         plotFrame(ctx, box1, [0, xMax], [-1, 1], '', '중간 횡지지: 해석적 시행해 대신 FEM 고유값 (노란 점) 표시');
         const X = v => box1.x + v / xMax * box1.w;
-        eigR.forEach((r, i) => { if (r <= xMax) { dot(ctx, X(r), box1.y + box1.h / 2, 5, COL.warn); txt(ctx, `P${SUB[i + 1]}`, X(r), box1.y + box1.h / 2 - 10, COL.warn, 'bold 10px Inter'); } });
+        eigR.forEach((r, i) => { if (r <= xMax) { dot(ctx, X(r), box1.y + box1.h / 2, 5, COL.warn); txt(ctx, i === 0 ? 'P₁=Pcr' : `P${SUB[i + 1]}`, X(r), box1.y + box1.h / 2 - 10, COL.warn, 'bold 10px Inter'); } });
       }
       // (b) modal stiffness  1 − P/P_n
-      const { X: X2, Y: Y2 } = plotFrame(ctx, box2, [0, xMax], [-1.5, 1], 'P / P₁', '모드별 유효강성  1 − P/Pn   (음수 = 그 모드가 불안정)');
+      const { X: X2, Y: Y2 } = plotFrame(ctx, box2, [0, xMax], [-1.5, 1], 'P / Pcr  (Pcr = P₁)', '모드별 유효강성  1 − P/Pn   (음수 = 그 모드가 불안정)');
       clipBox(ctx, box2);
       ctx.fillStyle = 'rgba(244,63,94,0.10)'; ctx.fillRect(box2.x, Y2(0), box2.w, Y2(-1.5) - Y2(0));
       const mc = ['#38bdf8', '#34d399', '#c084fc', '#f472b6'];
@@ -1888,7 +2001,7 @@
       $('fx-ode').innerHTML = ode.map(t => KX(t)).join('');
 
       const U = fu();
-      const PnTxt = D.Pn.slice(1, 4).map((p, i) => `P_{${i + 2}}=${tn(toFU(p))}\\,${U}\\;(${tn(p / D.Pcr, 2)}P_1)`).join(',\\;\\; ');
+      const PnTxt = String.raw`\text{고유값: }P_1=P_{cr},\;\; ` + D.Pn.slice(1, 4).map((p, i) => `P_{${i + 2}}=${tn(toFU(p))}\\,${U}\\;(${tn(p / D.Pcr, 2)}\\,P_{cr})`).join(',\\;\\; ');
       $('fx-pcr').innerHTML = [
         String.raw`P_{cr}=\frac{\pi^2EI}{(KL)^2}=\frac{\pi^2(${tn(state.E)}\,\text{GPa})(${texI(D.I)})}{(${tn(D.K, 3)}\times${tn(state.L)}\,\text{m})^2}=\mathbf{${tn(toFU(D.Pcr))}\,${U}}`,
         String.raw`EI=${D.EI < 1 ? tn(D.EI * 1000) + '\\,\\text{N}' : tn(D.EI) + '\\,\\text{kN}'}\cdot\text{m}^2,\quad K=\frac{\pi}{k_1L}=${tn(D.K, 3)},\quad L_e=KL=${tn(D.K * state.L, 3)}\,\text{m}`,
@@ -1944,6 +2057,13 @@
     /* ==========================================================================
        12. EXPLANATION & STAT CARDS
        ========================================================================== */
+    // One-line definition of P1, P2, P3 … shown at the top of the eigenvalue-view explanation
+    function eigIntroHtml() {
+      const higher = D.Pn.slice(1, 3).map((p, i) => `P${SUB[i + 2]} = ${fmtNum(p / D.Pcr, 2)}P<sub>cr</sub>`).join(', ');
+      return `<p class="eig-intro"><b>P₁, P₂, P₃ … (고유값)</b>: 곧은 기둥이 n차 모드 모양으로 <b>휜 채로도 평형</b>을 이룰 수 있는 특정한 하중들입니다. `
+        + `가장 작은 <b>P₁ = P<sub>cr</sub></b>(${fmtF(D.Pcr)})이 실제 좌굴하중이고${higher ? `, ${higher} …` : ''} 는 낮은 모드를 횡지지 등으로 막을 때만 나타납니다.</p>`;
+    }
+
     function updateExplain() {
       const r = state.P / D.Pcr, info = simInfo(mainSim), st = realState(info);
       const n1 = D.Pn.filter(p => state.P > p * 1.004).length;
@@ -1963,18 +2083,19 @@
         const im = eigMatch();
         if (state.P <= 0) { title = '고유치 문제'; h = `<p>하중을 올려 보세요. 점선은 미분방정식과 '마지막 하나를 뺀' 경계조건을 만족하는 시행해입니다.</p>`; }
         else if (im >= 0) {
-          title = `P = P${SUB[im + 1]} : ${im + 1}차 좌굴 모드 (고유값)`;
+          title = im === 0 ? 'P = P₁ = Pcr : 1차 좌굴 모드 (고유값)' : `P = P${SUB[im + 1]} : ${im + 1}차 좌굴 모드 (고유값)`;
           h = `<p>kL = ${fmtNum(Math.sqrt(D.lam), 4)} 에서 특성방정식이 0이 되어 <span class="hl">모든 경계조건을 만족하는 0이 아닌 해</span>가 존재합니다. 이 형상이 ${im + 1}차 모드이고, 진폭 C₁은 선형 이론으로 결정되지 않습니다 (그림에서 진폭이 계속 변하는 이유: 어떤 진폭이든 평형 = 중립 평형).</p>`
             + (im > 0 ? `<p><span class="hl">주의:</span> 이 하중에서는 이미 1차 모드${im > 1 ? ' 등 낮은 모드들' : ''}이 불안정합니다. 횡지지 없이 하중을 서서히 올리면 기둥은 P₁에서 1차 모드로 먼저 좌굴하므로, ${im + 1}차 모드는 낮은 모드를 막는 중간 지지가 있을 때만 실제로 나타납니다 (강의자료 p.8, 프리셋 ④).</p>` : '<p>실제 기둥에서 관찰되는 좌굴 모드입니다. 진폭이 실제로 얼마가 되는지는 <b>실제 거동</b> 탭(비선형 elastica)에서 볼 수 있습니다.</p>');
         } else {
           const k = D.Pn.findIndex(p => p > state.P);
           const lo = k <= 0 ? 0 : D.Pn[k - 1], hi = k < 0 ? Infinity : D.Pn[k];
-          title = k === 0 ? `P < P₁ : 경계조건을 만족하는 처짐 해 없음 (안정)` : `애매한 하중 — P${SUB[Math.max(k, 1)]} < P < P${SUB[Math.max(k, 1) + 1]} (P = ${fmtNum(r, 3)} P₁)`;
+          title = k === 0 ? `P < P₁ (= Pcr) : 경계조건을 만족하는 처짐 해 없음 (안정)` : `애매한 하중 — P${SUB[Math.max(k, 1)]} < P < P${SUB[Math.max(k, 1) + 1]} (P = ${fmtNum(r, 3)} Pcr)`;
           h = `<p>점선(시행해)은 미분방정식과 다른 경계조건은 만족하지만 <span class="hl">${state.brace ? '경계조건을' : (D.cfg.top === 'free' ? '끝단이 하중 작용선 위에 오는 조건(v(L)=δ)을' : D.cfg.top === 'pin' ? '윗단 처짐 v(L)=0을' : '윗단 기울기 v′(L)=0을')} 만족하지 못합니다</span>. 따라서 C₁ = 0, 즉 <b>선형 이론에서는 곧은 상태(v ≡ 0)만 평형해</b>입니다. 모드가 섞이거나 중간 형상이 생기는 것이 아닙니다.</p>`
             + (k === 0 ? `<p>P < P₁이므로 이 곧은 평형은 <b>안정</b>합니다 (모든 모드의 강성 1−P/P<sub>n</sub> > 0).</p>`
               : `<p>하지만 P > P₁이므로 이 곧은 평형은 <span class="hl text-rose-600">불안정</span>합니다 — 아래 '모드별 강성' 그래프에서 ${n1}개 모드의 강성이 음수입니다. 실제 기둥은 미소 외란만으로 <b>1차 모드 형태로 크게 휘어</b>, 선형 이론 밖의 대처짐 평형(elastica)을 찾아갑니다. <b>실제 거동</b> 탭에서 같은 하중을 확인해 보세요.</p>`)
             + `<p>즉, 선형 고유치 해석은 '어느 하중에서 좌굴이 시작되는가(P₁)와 그때의 형상'만 알려주고, 그 이후의 처짐 크기는 비선형 해석이 필요합니다.</p>`;
         }
+        h = eigIntroHtml() + h;
       } else {
         title = st.label;
         const rr = fmtNum(r, 3);
@@ -2060,23 +2181,89 @@
       needText = true; needChart = true;
     }
 
-    // Eigenvalue ruler under the load slider
+    // Eigenvalue ruler under the load slider (P₁ = Pcr is drawn with the same dark mark as on the slider track)
     function buildRuler() {
       const el = $('eigRuler');
       const pmax = pMaxRatio() * D.Pcr;
       let html = '';
-      const marks = D.Pn.map((p, i) => ({ p, lbl: `P${SUB[i + 1]}`, i }));
-      if (state.view === 'compare') D.cmp.forEach(c => marks.push({ p: c.Pcr, lbl: BCS[c.bc].name.replace(/ /g, ''), cmp: true }));
+      const marks = [];
+      if (state.view !== 'compare' || state.brace) {
+        D.Pn.forEach((p, i) => marks.push({ p, i, pcr: i === 0, lbl: i === 0 ? 'P₁=P<sub>cr</sub>' : `P${SUB[i + 1]}`,
+          tip: i === 0 ? `P₁ = Pcr (임계하중 · 1차 모드) = ${fmtF(p)}` : `P${SUB[i + 1]} = ${i + 1}차 모드의 고유값 = ${fmtNum(p / D.Pcr, 2)} Pcr = ${fmtF(p)} (낮은 모드를 막아야 나타남)` }));
+      }
+      if (state.view === 'compare') D.cmp.forEach(c => marks.push({ p: c.Pcr, lbl: BCS[c.bc].name.replace(/ /g, ''), cmp: true,
+        pcr: !state.brace && c.bc === state.bc, tip: `${BCS[c.bc].name} 기둥의 Pcr = ${fmtF(c.Pcr)}` }));
       for (const m of marks) {
         if (m.p > pmax * 1.0001) continue;
         const f = m.p / pmax;
         const rel = state.P / m.p;
         const col = Math.abs(rel - 1) < 0.004 ? '#d97706' : rel > 1 ? '#e11d48' : '#059669';
         const bg = Math.abs(rel - 1) < 0.004 ? '#fef3c7' : rel > 1 ? '#ffe4e6' : '#d1fae5';
-        html += `<div class="tick" style="left:${(f * 100).toFixed(2)}%" onclick="stopRamp();setLoad(${m.p});paintParams();" title="${m.lbl} = ${fmtF(m.p)}">
+        html += `<div class="tick${m.pcr ? ' pcr' : ''}" style="left:${(f * 100).toFixed(2)}%" onclick="stopRamp();setLoad(${m.p});paintParams();" title="${m.tip}">
           <span class="bar" style="background:${col}"></span><span class="lbl" style="color:${col};background:${bg}${m.cmp ? ';font-size:9px' : ''}">${m.lbl}</span></div>`;
       }
       el.innerHTML = html;
+      const chip = `<span class="pcr-swatch"></span>P<sub>cr</sub> = P₁ = ${fmtF(D.Pcr)}`;
+      if ($('pcrChip').innerHTML !== chip) $('pcrChip').innerHTML = chip;
+      buildEigTable();
+    }
+
+    // --- eigenvalue cards: P1 (= Pcr), P2, P3, P4 with mode shape, value and comparison with the current P ---
+    const EIG_EQ = {
+      pp: '핀–핀: 특성방정식 sin kL = 0 → kL = π, 2π, 3π, … → P<sub>n</sub> = n²π²EI/L² = n²·P<sub>cr</sub>',
+      ff: '고정–자유: 특성방정식 cos kL = 0 → kL = π/2, 3π/2, 5π/2, … → P<sub>n</sub> = (2n−1)²·P<sub>cr</sub>',
+      fp: '고정–핀: 특성방정식 tan kL = kL → kL = 4.493, 7.725, 10.904, …',
+      cc: '고정–고정: 대칭 모드 sin(kL/2) = 0 → kL = 2π, 4π, … · 역대칭 모드 tan(kL/2) = kL/2 → kL = 8.987, 15.45, …',
+      cg: '고정–회전구속: 특성방정식 sin kL = 0 → kL = π, 2π, 3π, …',
+    };
+    function modeIconSvg(md, cfg) {
+      const cx = 20, yb = 47, yt = 11, h = yb - yt, amp = 8.5, n = md.s.length;
+      const pts = [];
+      for (let i = 0; i < n; i += 3) pts.push(`${(cx + md.v[i] * amp).toFixed(1)},${(yb - md.s[i] * h).toFixed(1)}`);
+      if ((n - 1) % 3) pts.push(`${(cx + md.v[n - 1] * amp).toFixed(1)},${(yb - md.s[n - 1] * h).toFixed(1)}`);
+      let sv = `<svg width="40" height="56" viewBox="0 0 40 56" aria-hidden="true">`;
+      sv += `<line x1="${cx}" y1="${yb}" x2="${cx}" y2="${yt}" stroke="#cbd5e1" stroke-width="1" stroke-dasharray="2 2"/>`;
+      if (cfg.brace) {
+        const ya = (yb - cfg.a * h).toFixed(1);
+        sv += `<line x1="${cx - 13}" y1="${ya}" x2="${cx - 9}" y2="${ya}" stroke="#059669" stroke-width="2"/><line x1="${cx + 9}" y1="${ya}" x2="${cx + 13}" y2="${ya}" stroke="#059669" stroke-width="2"/>`;
+      }
+      sv += `<polyline points="${pts.join(' ')}" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>`;
+      for (const z of md.infl) if (z > 0.02 && z < 0.98) sv += `<circle cx="${(cx + interpAt(md.s, md.v, z) * amp).toFixed(1)}" cy="${(yb - z * h).toFixed(1)}" r="2" fill="none" stroke="#d97706" stroke-width="1.2"/>`;
+      if (cfg.bot === 'pin') sv += `<path d="M${cx} ${yb} l-5 7 h10 z" fill="#64748b"/>`;
+      else sv += `<rect x="${cx - 10}" y="${yb}" width="20" height="4" fill="#475569"/>`;
+      if (cfg.top === 'pin') sv += `<path d="M${cx} ${yt} l-5 -7 h10 z" fill="#64748b"/>`;
+      else if (cfg.top === 'fixed') sv += `<rect x="${cx - 10}" y="${yt - 4}" width="20" height="4" fill="#475569"/>`;
+      else if (cfg.top === 'guided') sv += `<rect x="${cx - 9}" y="${yt - 3}" width="18" height="3" fill="#475569"/><circle cx="${cx - 4}" cy="${yt - 5.5}" r="1.8" fill="#94a3b8"/><circle cx="${cx + 4}" cy="${yt - 5.5}" r="1.8" fill="#94a3b8"/>`;
+      return sv + '</svg>';
+    }
+    let eigTableKey = '';
+    function buildEigTable() {
+      const el = $('eigTable');
+      if (!el) return;
+      const nm = Math.min(4, D.eig.modes.length);
+      const key = `${D.cfg.key}|${D.Pcr}|${forceUnit()}`;
+      if (key !== eigTableKey) {
+        eigTableKey = key;
+        el.innerHTML = D.eig.modes.slice(0, nm).map((md, i) => {
+          const nS = SUB[i + 1], ratio = fmtNum(D.Pn[i] / D.Pcr, 2);
+          const tip = i === 0 ? `1차 모드: P₁ = Pcr = ${fmtF(D.Pn[0])} — 하중을 올리면 실제로 여기서 좌굴` : `${i + 1}차 모드: P${nS} = ${ratio} Pcr = ${fmtF(D.Pn[i])} — 낮은 모드를 막아야 나타남`;
+          return `<button class="eig-card${i === 0 ? ' pcr' : ''}" data-i="${i}" onclick="setToEig(${i})" title="${tip} (클릭: 이 하중으로 이동)">
+            ${modeIconSvg(md, D.cfg)}
+            <div class="ec-name">${i === 0 ? 'P₁ = P<sub>cr</sub>' : `P${nS}`}</div>
+            <div class="ec-ratio">${i + 1}차 · ${ratio}P<sub>cr</sub></div>
+            <div class="ec-val">${fmtF(D.Pn[i])}</div>
+            <div class="ec-st"></div></button>`;
+        }).join('');
+        const shown = D.Pn.slice(0, 4).map((p, i) => i === 0 ? 'P₁ = P<sub>cr</sub>' : `P${SUB[i + 1]} = ${fmtNum(p / D.Pcr, 2)}P<sub>cr</sub>`).join(', ');
+        $('eigHelpBC').innerHTML = `<b>현재 지지조건</b> — ${D.cfg.brace ? `${BCS[D.cfg.bc].name} + 중간 횡지지: FEM 고유치 해석 (K − P·K<sub>G</sub>)φ = 0 의 고유값을 작은 순서로 P₁, P₂, P₃ …` : EIG_EQ[D.cfg.bc]} (k = √(P/EI)).<br>→ ${shown} …`;
+      }
+      el.querySelectorAll('.eig-card').forEach(card => {
+        const i = +card.dataset.i, rel = state.P / D.Pn[i], nS = SUB[i + 1];
+        const st = Math.abs(rel - 1) < 0.004 ? 'eq' : rel > 1 ? 'over' : 'under';
+        if (card.dataset.st === st) return;
+        card.dataset.st = st;
+        card.querySelector('.ec-st').textContent = st === 'eq' ? `P = P${nS}` : st === 'over' ? `P > P${nS}` : `P < P${nS}`;
+      });
     }
 
     // --- parameter rows: slider + number box kept in sync ---
@@ -2098,6 +2285,10 @@
           sl.min = lo; sl.max = hi;
           if (sl !== except) sl.value = v;
           sl.style.setProperty('--p', hi > lo ? clamp((v - lo) / (hi - lo), 0, 1) : 0);
+          if (sl.classList.contains('has-pcr')) {       // dark Pcr mark on the track
+            const pc = row.dataset.field === 'P' ? toFU(D.Pcr) : 1;
+            sl.style.setProperty('--pcr', hi > lo ? clamp((pc - lo) / (hi - lo), -1, 2) : -1);
+          }
         }
         if (nb && nb !== except) {
           const a = Math.abs(v);
@@ -2226,14 +2417,14 @@
     }
     function resetStraight() {
       const all = [mainSim, ...Object.values(cmpSims)];
-      all.forEach(s => { s.q = q0For(s.T); s.v = 0; });
+      all.forEach(s => { s.q = q0For(s.T); s.v = 0; s.j = 0; s.jv = 0; });
       needText = true;
     }
 
     // --- views & charts ---
     const VIEW_HINT = {
       real: '실제 거동: 단일 모드 동역학 + 비선형 elastica. 기둥의 왼쪽/오른쪽을 클릭하면 그 방향으로 외란이 가해집니다. 선 색 = 응력비 σ/σY (파랑→노랑→빨강: 항복).',
-      eigen: '고유치 문제: 점선 = 시행해(미분방정식+나머지 경계조건), 빨간 표시 = 위배되는 경계조건. 오른쪽 = FEM 고유모드와 현재 하중에서의 안정성.',
+      eigen: '고유치 문제: 점선 = 시행해(미분방정식+나머지 경계조건), 빨간 표시 = 위배되는 경계조건. 오른쪽 = 고유값 Pn(P₁ = Pcr)과 n차 모드 형상, 그리고 현재 P와의 대소 비교.',
       compare: '같은 기둥(같은 E·I·L)에 같은 하중 P — 지지조건만 다릅니다. 기둥을 클릭하면 외란이 가해집니다.',
     };
     function setView(v) {
@@ -2242,7 +2433,8 @@
       $('viewHint').textContent = VIEW_HINT[v];
       if (v === 'compare') D.cmp.forEach(c => settleSim(cmpSims[c.bc]));
       setChart(v === 'eigen' ? 'char' : 'path');
-      $('ratioLabel').textContent = 'P / P₁';
+      $('ratioLabel').innerHTML = 'P / P<sub>cr</sub>';
+      if (v === 'eigen') $('eigHelp').open = true;   // show what P1, P2, P3 … mean when the eigenvalue view opens
       paintParams(); buildRuler();
       needText = true;
     }
