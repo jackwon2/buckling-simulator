@@ -153,8 +153,8 @@
     .sel-in { width: 100%; padding: 0.3rem 0.4rem; border: 1px solid #cbd5e1; border-radius: 0.375rem; background: #f8fafc; font-size: 12px; font-weight: 500; }
 
     /* Eigenvalue ruler under the load slider */
-    #eigRuler { position: relative; height: 26px; margin: 2px 11px 0; }
-    @media (pointer: coarse) { #eigRuler { margin: 2px 13px 0; } }
+    /* full row width; tick x is computed from the P slider's real track geometry (layoutRuler) */
+    #eigRuler { position: relative; height: 26px; margin: 2px 0 0; }
     #eigRuler .tick { position: absolute; top: 0; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; cursor: pointer; }
     #eigRuler .tick .bar { width: 2px; height: 8px; border-radius: 1px; }
     #eigRuler .tick .lbl { font-size: 10px; font-weight: 700; line-height: 1.1; padding: 1px 4px; border-radius: 4px; white-space: nowrap; }
@@ -162,7 +162,13 @@
     #eigRuler .tick.pcr { z-index: 1; }
     #eigRuler .tick.pcr .bar { width: 3px; height: 9px; background: #0f172a !important; }
     #eigRuler .tick.pcr .lbl { box-shadow: inset 0 0 0 1.2px #0f172a; }
-    @container (max-width: 340px) { .ruler-row > span { display: none; } .ruler-row #eigRuler { grid-column: 1 / -1; } }
+    #eigRuler.two-row { height: 40px; }
+    #eigRuler .tick.py .bar { background: #ea580c !important; height: 21px; }   /* PY label on a second row */
+    #eigRuler .tick.py .lbl { color: #9a3412 !important; background: #ffedd5 !important; box-shadow: inset 0 0 0 1.2px #ea580c; }
+    .sub-h { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.15rem 0.5rem; padding-top: 0.35rem; border-top: 1px dashed #e2e8f0; font-size: 11.5px; font-weight: 700; color: #334155; }
+    .sub-h:first-child { border-top: 0; padding-top: 0; }
+    .sub-h .sub-tag { font-size: 10px; font-weight: 500; color: #94a3b8; }
+    input[type="range"].slider-thumb.accent-teal-600 { --sl: #0d9488; }
 
     /* Pcr marker drawn on the load sliders' track (--pcr = 0…1 set by script; < 0 hides it) */
     input[type="range"].slider-thumb.has-pcr { --pcr: -1; }
@@ -267,8 +273,8 @@
           <p class="text-xs text-slate-400">선형 고유치 해석(FEM) · 비선형 Elastica 후좌굴 해석 기반 실시간 시각화 — 하중 슬라이더를 움직이며 모드 형상과 안정성을 관찰하세요</p>
         </div>
       </div>
-      <div class="flex items-center gap-1.5 overflow-x-auto py-1 min-w-0 max-w-full">
-        <span class="text-xs text-slate-400 mr-1 font-semibold hidden md:inline"><i class="fa-solid fa-chalkboard-user mr-1"></i>강의 시연:</span>
+      <div class="flex items-center gap-1.5 overflow-x-auto lg:flex-wrap py-1 min-w-0 max-w-full">
+        <span class="text-xs text-slate-400 mr-1 font-semibold hidden md:inline whitespace-nowrap shrink-0"><i class="fa-solid fa-chalkboard-user mr-1"></i>강의 시연:</span>
         <button onclick="applyPreset('critical')" class="px-2.5 py-1 text-xs bg-slate-800 hover:bg-blue-600 text-slate-200 hover:text-white rounded-md transition font-medium border border-slate-700">① 임계하중·분기점</button>
         <button onclick="applyPreset('between')" class="px-2.5 py-1 text-xs bg-slate-800 hover:bg-blue-600 text-slate-200 hover:text-white rounded-md transition font-medium border border-slate-700">② 애매한 하중 (P₁&lt;P&lt;P₂)</button>
         <button onclick="applyPreset('post')" class="px-2.5 py-1 text-xs bg-slate-800 hover:bg-blue-600 text-slate-200 hover:text-white rounded-md transition font-medium border border-slate-700">③ 후좌굴 (자)</button>
@@ -276,6 +282,7 @@
         <button onclick="applyPreset('compare')" class="px-2.5 py-1 text-xs bg-slate-800 hover:bg-blue-600 text-slate-200 hover:text-white rounded-md transition font-medium border border-slate-700">⑤ 지지조건 비교</button>
         <button onclick="applyPreset('imperfect')" class="px-2.5 py-1 text-xs bg-slate-800 hover:bg-blue-600 text-slate-200 hover:text-white rounded-md transition font-medium border border-slate-700">⑥ 초기결함 (실제 기둥)</button>
         <button onclick="applyPreset('short')" class="px-2.5 py-1 text-xs bg-slate-800 hover:bg-blue-600 text-slate-200 hover:text-white rounded-md transition font-medium border border-slate-700">⑦ 단주 (항복 선행)</button>
+        <button onclick="applyPreset('secant')" title="예제 13.4: A36 W200×59, 고정–자유 L = 4 m, x-x축 편심 e = 200 mm → PY = 419.4 kN" class="px-2.5 py-1 text-xs bg-slate-800 hover:bg-blue-600 text-slate-200 hover:text-white rounded-md transition font-medium border border-slate-700">⑧ 편심하중 (예제 13.4)</button>
         <span class="w-px h-5 bg-slate-700 mx-1 hidden lg:inline-block"></span>
         <button id="wideToggle" onclick="toggleWideLayout()" title="화면 전체 폭 사용 / 기본 폭" class="hidden lg:inline-flex items-center gap-1 px-2.5 py-1 text-xs bg-slate-800 hover:bg-indigo-600 text-slate-200 hover:text-white rounded-md transition font-medium border border-slate-700">
           <i class="fa-solid fa-left-right"></i> <span id="wideToggleLabel">전체 폭</span>
@@ -293,24 +300,28 @@
     <aside class="min-w-0 flex flex-col gap-4">
 
       <!-- Load P -->
-      <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4">
-        <div class="flex justify-between items-start mb-2 gap-2">
+      <div id="panel-load" class="panel bg-white rounded-xl shadow-sm border border-slate-200 p-4">
+        <div class="panel-head flex justify-between items-start mb-2 gap-2">
           <div class="min-w-0">
             <h2 class="font-bold text-slate-800 text-sm flex items-center gap-2"><i class="fa-solid fa-arrow-down text-rose-500"></i> 축방향 압축하중 P</h2>
             <div id="pcrChip" class="pcr-chip" onclick="setRatio(1)" title="임계하중 Pcr = 가장 작은 고유값 P₁. 슬라이더 위의 검은 눈금이 Pcr 위치입니다 (클릭하면 P = Pcr).">P<sub>cr</sub> = P₁ = –</div>
           </div>
-          <div class="text-right leading-tight">
-            <div id="pReadout" class="text-lg font-extrabold text-rose-600">0 kN</div>
-            <div id="pRatioReadout" class="text-[11px] font-semibold text-slate-500">P / P<sub>cr</sub> = 0.000</div>
+          <div class="flex items-start gap-2">
+            <div class="text-right leading-tight">
+              <div id="pReadout" class="text-lg font-extrabold text-rose-600">0 kN</div>
+              <div id="pRatioReadout" class="text-[11px] font-semibold text-slate-500">P / P<sub>cr</sub> = 0.000</div>
+            </div>
+            <button onclick="togglePanel('panel-load')" class="panel-toggle" title="최소화 / 펼치기"><i class="fa-solid fa-minus"></i><i class="fa-solid fa-plus"></i></button>
           </div>
         </div>
+        <div class="panel-body">
         <div class="cq space-y-1">
           <div class="param-row" data-field="P">
             <label class="pr-label pr-main" for="pNum">하중 P</label>
             <input type="range" id="pSlider" class="slider-thumb big has-pcr accent-rose-500" min="0" max="100" step="any" value="0" aria-label="하중 P">
             <span class="pr-num"><input type="number" id="pNum" class="num-in" value="0" step="any" inputmode="decimal" enterkeyhint="done" autocomplete="off"><span id="pUnit" class="pr-unit">kN</span></span>
           </div>
-          <div class="param-row ruler-row"><span></span><div id="eigRuler" title="고유값 Pn 위치 (P₁ = Pcr) — 클릭하면 그 하중으로 이동"></div><span></span></div>
+          <div id="eigRuler" title="고유값 Pn 위치 (P₁ = Pcr) — 클릭하면 그 하중으로 이동"></div>
           <div class="param-row" data-field="ratio">
             <label id="ratioLabel" class="pr-label" for="ratioNum">P / P<sub>cr</sub></label>
             <input type="range" class="slider-thumb has-pcr accent-purple-500" min="0" max="3" step="any" value="0" aria-label="P/Pcr">
@@ -348,14 +359,19 @@
             </ul>
           </details>
         </div>
+        </div>
       </div>
 
       <!-- Support conditions -->
-      <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4">
-        <div class="flex justify-between items-center mb-2">
+      <div id="panel-support" class="panel bg-white rounded-xl shadow-sm border border-slate-200 p-4">
+        <div class="panel-head flex justify-between items-center mb-2 gap-2">
           <h2 class="font-bold text-slate-800 text-sm flex items-center gap-2"><i class="fa-solid fa-anchor text-emerald-600"></i> 지지조건 (구속조건)</h2>
-          <span id="kBadge" class="text-xs font-bold px-2 py-0.5 rounded-md bg-blue-50 text-blue-700 border border-blue-200">K = 1</span>
+          <div class="flex items-center gap-2">
+            <span id="kBadge" class="text-xs font-bold px-2 py-0.5 rounded-md bg-blue-50 text-blue-700 border border-blue-200">K = 1</span>
+            <button onclick="togglePanel('panel-support')" class="panel-toggle" title="최소화 / 펼치기"><i class="fa-solid fa-minus"></i><i class="fa-solid fa-plus"></i></button>
+          </div>
         </div>
+        <div class="panel-body">
         <div id="bcCards" class="grid grid-cols-5 gap-1.5"></div>
         <div class="mt-3 p-2.5 rounded-lg bg-slate-50 border border-slate-200 cq">
           <label class="flex items-center gap-2 text-xs font-semibold text-slate-700 cursor-pointer select-none">
@@ -368,12 +384,19 @@
             <span class="pr-num"><input type="number" id="braceNum" class="num-in num-sm" value="0.5" step="0.01" min="0.1" max="0.9" inputmode="decimal" autocomplete="off"><span class="pr-unit">× L</span></span>
           </div>
         </div>
+        </div>
       </div>
 
       <!-- Column section & material -->
-      <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4">
-        <h2 class="font-bold text-slate-800 text-sm flex items-center gap-2 mb-3"><i class="fa-solid fa-cube text-blue-600"></i> 기둥 단면 · 재료</h2>
-        <div class="space-y-2.5 text-xs cq">
+      <div id="panel-section" class="panel bg-white rounded-xl shadow-sm border border-slate-200 p-4">
+        <div class="panel-head flex justify-between items-center mb-3 gap-2">
+          <h2 class="font-bold text-slate-800 text-sm flex items-center gap-2"><i class="fa-solid fa-cube text-blue-600"></i> 기둥 단면 · 재료</h2>
+          <div class="flex items-center gap-2">
+            <span id="secBadge" class="text-[11px] font-semibold text-slate-500 whitespace-nowrap"></span>
+            <button onclick="togglePanel('panel-section')" class="panel-toggle" title="최소화 / 펼치기"><i class="fa-solid fa-minus"></i><i class="fa-solid fa-plus"></i></button>
+          </div>
+        </div>
+        <div class="panel-body space-y-2.5 text-xs cq">
           <div class="param-row" data-field="L">
             <label class="pr-label pr-main" for="lenNum">길이 L</label>
             <input type="range" class="slider-thumb accent-blue-600" min="0.2" max="10" step="0.01" value="3" aria-label="기둥 길이 L">
@@ -411,9 +434,13 @@
       </div>
 
       <!-- Imperfection & disturbance -->
-      <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4">
-        <h2 class="font-bold text-slate-800 text-sm flex items-center gap-2 mb-2"><i class="fa-solid fa-wave-square text-amber-500"></i> 실제 기둥: 초기결함 · 외란</h2>
-        <div class="cq space-y-2">
+      <div id="panel-imperfect" class="panel bg-white rounded-xl shadow-sm border border-slate-200 p-4">
+        <div class="panel-head flex justify-between items-center mb-2 gap-2">
+          <h2 class="font-bold text-slate-800 text-sm flex items-center gap-2"><i class="fa-solid fa-wave-square text-amber-500"></i> 실제 기둥: 초기 휨 · 편심하중 · 외란</h2>
+          <button onclick="togglePanel('panel-imperfect')" class="panel-toggle" title="최소화 / 펼치기"><i class="fa-solid fa-minus"></i><i class="fa-solid fa-plus"></i></button>
+        </div>
+        <div class="panel-body cq space-y-2">
+          <div class="sub-h"><span>① 초기 휨 e₀</span><span class="sub-tag">기둥이 처음부터 살짝 굽어 있음 · '실제 거동' 탭</span></div>
           <div class="param-row" data-field="e0">
             <label class="pr-label pr-main" for="e0Num">초기 휨 e₀</label>
             <input type="range" class="slider-thumb accent-amber-500" min="0" max="30" step="any" value="0" aria-label="초기 휨">
@@ -425,7 +452,25 @@
             <button class="qbtn" onclick="setE0Frac(1/500)">L/500</button>
             <button class="qbtn" onclick="setE0Frac(1/200)">L/200</button>
           </div>
-          <p id="e0Note" class="text-[10px] text-slate-500 leading-snug">초기 휨은 1차 모드 형상으로 가정합니다 (선형 이론: 처짐 증폭 1/(1−P/P<sub>cr</sub>)). Secant 공식의 편심하중 e와 같은 역할을 합니다.</p>
+          <p id="e0Note" class="text-[10px] text-slate-500 leading-snug">초기 휨은 1차 모드 형상으로 가정합니다 (선형 이론: 처짐 증폭 e₀/(1−P/P<sub>cr</sub>)). 하중을 가하자마자 휜다는 점은 편심하중과 비슷하지만, 식과 값은 다릅니다.</p>
+
+          <div class="sub-h mt-3"><span>② 편심하중 e (Secant 공식)</span><span class="sub-tag">강의자료 p.15–18 · 'Secant 공식' 탭</span></div>
+          <div class="param-row" data-field="ecc">
+            <label class="pr-label pr-main" for="eccNum">편심 e</label>
+            <input type="range" class="slider-thumb accent-teal-600" min="0" max="30" step="any" value="0" aria-label="편심 e">
+            <span class="pr-num"><input type="number" id="eccNum" class="num-in num-sm" value="0" step="any" min="0" inputmode="decimal" autocomplete="off"><span class="pr-unit">mm</span></span>
+          </div>
+          <div class="grid grid-cols-5 gap-1">
+            <button class="qbtn" onclick="setEccRatio(0)">0</button>
+            <button class="qbtn" onclick="setEccRatio(0.1)" title="편심비 ec/r² = 0.1 (강의자료 p.17 그래프)">ec/r²<br>0.1</button>
+            <button class="qbtn" onclick="setEccRatio(0.5)" title="편심비 ec/r² = 0.5">ec/r²<br>0.5</button>
+            <button class="qbtn" onclick="setEccRatio(1.0)" title="편심비 ec/r² = 1.0">ec/r²<br>1.0</button>
+            <button class="qbtn" onclick="setEccRatio(1.5)" title="편심비 ec/r² = 1.5">ec/r²<br>1.5</button>
+          </div>
+          <p id="eccNote" class="text-[10px] text-slate-500 leading-snug">하중 P가 도심에서 e만큼 떨어져 작용 → M = −P(e+v). 편심 e를 바꾸면 'Secant 공식' 탭이 열립니다.</p>
+
+          <div class="sub-h mt-3"><span>③ 외란 (disturbance)</span><span class="sub-tag">강의자료 p.4–5 · 안정성 판정용 '툭 건드림'</span></div>
+          <p class="text-[10px] text-slate-500 leading-snug">순간적으로 옆에서 건드리는 것입니다. 계속 작용하는 편심하중과 달리 곧 사라지며, 기둥이 되돌아오면 안정(P &lt; P<sub>cr</sub>), 크게 휘면 불안정(P &gt; P<sub>cr</sub>)입니다.</p>
           <label class="flex items-center gap-2 text-xs text-slate-700 cursor-pointer select-none">
             <input type="checkbox" id="noiseChk" checked class="accent-amber-500"> 미소 외란 자동 (현실: 진동·바람·불균일)
           </label>
@@ -435,7 +480,7 @@
             <button onclick="kick(1)" class="flex-1 py-2 text-xs font-bold rounded-lg bg-amber-500 hover:bg-amber-600 text-white transition">외란 →<i class="fa-solid fa-hand-point-right ml-1"></i></button>
             <button onclick="resetStraight()" title="곧은 상태로 되돌리기" class="py-2 px-2.5 text-xs font-semibold rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 transition"><i class="fa-solid fa-rotate-left"></i></button>
           </div>
-          <p class="text-[10px] text-slate-400 leading-snug"><span class="hint-mouse">기둥 그림의 왼쪽/오른쪽을 클릭해도</span><span class="hint-touch">기둥 그림의 왼쪽/오른쪽을 탭해도</span> 그 방향으로 외란을 줄 수 있습니다.</p>
+          <p class="text-[10px] text-slate-400 leading-snug"><span class="hint-mouse">기둥 그림의 왼쪽/오른쪽을 클릭해도</span><span class="hint-touch">기둥 그림의 왼쪽/오른쪽을 탭해도</span> 그 방향으로 외란을 줄 수 있습니다 ('실제 거동'·'지지조건 비교' 탭).</p>
         </div>
       </div>
     </aside>
@@ -454,6 +499,7 @@
             <button id="vt-real" class="view-tab active" onclick="setView('real')"><i class="fa-solid fa-person-falling-burst mr-1"></i>실제 거동 (안정성·후좌굴)</button>
             <button id="vt-eigen" class="view-tab" onclick="setView('eigen')"><i class="fa-solid fa-wave-square mr-1"></i>고유치 문제 (모드 형상)</button>
             <button id="vt-compare" class="view-tab" onclick="setView('compare')"><i class="fa-solid fa-table-columns mr-1"></i>지지조건 비교</button>
+            <button id="vt-secant" class="view-tab" onclick="setView('secant')"><i class="fa-solid fa-arrows-left-right-to-line mr-1"></i>편심하중 (Secant 공식)</button>
           </div>
           <div class="flex items-center gap-1.5 flex-wrap">
             <label class="chip" title="변곡점(M=0)과 유효길이 Le = KL 표시"><input type="checkbox" id="optLe" checked class="accent-blue-600"> 변곡점·L<sub>e</sub></label>
@@ -471,7 +517,7 @@
           </div>
           <div class="flex flex-wrap items-center justify-between gap-2 mt-1">
             <p id="viewHint" class="text-[11px] text-slate-500"></p>
-            <div class="param-row flex items-center gap-2 bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-200" data-field="scale" style="display:flex">
+            <div id="scaleRow" class="param-row flex items-center gap-2 bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-200" data-field="scale" style="display:flex">
               <label class="text-[11px] font-semibold text-slate-600 whitespace-nowrap" for="scaleNum">가로(처짐) 배율</label>
               <input type="range" class="w-24 slider-thumb accent-blue-600" min="1" max="20" step="0.5" value="1" aria-label="처짐 배율">
               <span class="pr-num"><input type="number" id="scaleNum" class="num-in num-sm" value="1" step="0.5" min="1" inputmode="decimal" autocomplete="off"><span class="pr-unit text-xs font-bold text-blue-600">×</span></span>
@@ -522,6 +568,7 @@
             <button onclick="setChart('path')" id="ct-path" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-blue-600 text-white shadow-sm transition">P – v<sub>max</sub> 평형경로 (분기선도)</button>
             <button onclick="setChart('char')" id="ct-char" class="px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-100 rounded-lg transition">특성방정식 · 모드별 강성</button>
             <button onclick="setChart('euler')" id="ct-euler" class="px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-100 rounded-lg transition">σ<sub>cr</sub> – KL/r 곡선</button>
+            <button onclick="setChart('secant')" id="ct-secant" class="px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-100 rounded-lg transition">Secant 공식 (P–v<sub>max</sub> · P/A–KL/r)</button>
           </div>
           <div class="flex items-center gap-1.5">
             <label id="zoomChip" class="chip" title="가로축(처짐) 확대"><input type="checkbox" id="chartZoom" class="accent-blue-600"> 처짐축 확대</label>
@@ -551,7 +598,8 @@
             <div class="fbox"><h3><i class="fa-solid fa-bolt text-rose-600"></i> 임계하중 · 유효길이 (수치 대입)</h3><div id="fx-pcr" class="kx"></div></div>
             <div class="fbox"><h3><i class="fa-solid fa-ruler text-emerald-600"></i> 임계응력 · 세장비</h3><div id="fx-sig" class="kx"></div></div>
             <div class="fbox md:col-span-2"><h3><i class="fa-solid fa-crosshairs text-fuchsia-600"></i> 현재 하중에서의 상태</h3><div id="fx-state" class="kx"></div></div>
-            <div class="fbox md:col-span-2"><h3><i class="fa-solid fa-chart-line text-amber-600"></i> 실제 기둥 (초기결함 · 편심) 과 후좌굴</h3><div id="fx-post" class="kx"></div></div>
+            <div class="fbox md:col-span-2"><h3><i class="fa-solid fa-arrows-left-right-to-line text-teal-600"></i> 편심하중 · Secant 공식 (강의자료 p.15–18) <span id="fxSecName" class="font-normal text-slate-500"></span></h3><div id="fx-secant" class="kx"></div></div>
+            <div class="fbox md:col-span-2"><h3><i class="fa-solid fa-chart-line text-amber-600"></i> 실제 기둥 (초기 휨 e₀) 과 후좌굴</h3><div id="fx-post" class="kx"></div></div>
           </div>
           <div class="v-resizer lg-only" data-resize="formulaBox" role="separator" aria-orientation="horizontal" aria-label="수식 창 높이 조절" tabindex="0" title="드래그하여 높이 조절 (더블클릭: 기본값)">
             <span class="v-grip"></span><span class="v-hint"><i class="fa-solid fa-up-down mr-1"></i>끌어서 높이 조절</span>
@@ -600,6 +648,7 @@
       P: 0,                // kN
       view: 'real', chart: 'path', zoom: false,
       e0: 0,               // initial crookedness amplitude (mm)
+      ecc: 0,              // load eccentricity e (mm) — Secant formula (lecture p.15–18)
       noise: true, showLe: true, showM: false, showGhost: true, scale: 1,
       dir: 1,              // preferred buckling side
       ramp: 0,             // -1, 0, +1
@@ -1254,6 +1303,51 @@
       return shapeAt(sim.T, sim.q + (sim.j || 0), sim.bufD);
     }
 
+    /* --------------------------------------------------------------------------
+       ECCENTRICALLY LOADED COLUMN — Secant formula (lecture p.15–18), linear small-deflection theory.
+       Pin-ended column of length Le = KL with the load P at eccentricity e at both ends:
+         M = −P(e + v)  →  v = e[tan(kLe/2) sin kx + cos kx − 1],  k = √(P/EI)
+         v_max = e[sec(kLe/2) − 1],   M_max = P e sec(kLe/2)
+         σ_max = P/A [1 + (ec/r²) sec((Le/2r)√(P/EA))]      with  kLe/2 = (π/2)√(P/Pcr)
+       -------------------------------------------------------------------------- */
+    const secTheta = P => (Math.PI / 2) * Math.sqrt(Math.max(P, 0) / D.Pcr);
+    // load P_Y at which σ_max reaches σ_Y (the lecture solves it by trial and error; here by bisection)
+    function secantPY(eps) {
+      const top = Math.min(D.Pcr, D.Py);
+      if (!(eps > 0)) return top;
+      const f = P => P * 1e3 / D.A * (1 + eps / Math.cos(secTheta(P))) - state.sy;
+      let lo = 0, hi = top * (1 - 1e-12);
+      for (let i = 0; i < 100; i++) { const m = 0.5 * (lo + hi); if (f(m) < 0) lo = m; else hi = m; }
+      return 0.5 * (lo + hi);
+    }
+    // P/A on the σ_max = σ_Y curve for a given KL/r and eccentricity ratio (lecture p.17 graph)
+    function secantPA(KLr, eps, E, sy) {
+      const scr = KLr > 0 ? PI2 * E / (KLr * KLr) : Infinity;
+      const top = Math.min(sy, scr);
+      if (!(eps > 0)) return top;
+      const f = s => s * (1 + eps / Math.cos(0.5 * KLr * Math.sqrt(s / E))) - sy;
+      let lo = 0, hi = top * (1 - 1e-12);
+      for (let i = 0; i < 70; i++) { const m = 0.5 * (lo + hi); if (f(m) < 0) lo = m; else hi = m; }
+      return 0.5 * (lo + hi);
+    }
+    function secantInfo(P = state.P) {
+      const e = state.ecc, eps = e * D.c / (D.r * D.r);
+      const th = secTheta(P), ok = th < Math.PI / 2 * (1 - 1e-6);
+      const sec = ok ? 1 / Math.cos(th) : Infinity;
+      const sigA = P * 1e3 / D.A;
+      const PY = secantPY(eps);
+      const atY = ok && e > 0 && Math.abs(sigA * (1 + eps * sec) / state.sy - 1) < 1e-4;   // exactly at P_Y
+      return {
+        e, eps, th, ok, sec, sigA, PY, atY, Le: D.K * state.L,
+        vmax: ok ? e * (sec - 1) : Infinity,                  // mm
+        Mmax: ok ? P * e * sec * 1e-3 : Infinity,             // kN·m
+        sigmax: ok ? sigA * (1 + eps * sec) : Infinity,       // MPa (concave side, toward the load)
+        sigmin: ok ? sigA * (1 - eps * sec) : -Infinity,      // MPa (convex side; < 0 → tension)
+      };
+    }
+    // lateral deflection of the Secant model at s = x/Le (mm)
+    const secantV = (e, th, s) => e * (Math.tan(th) * Math.sin(2 * th * s) + Math.cos(2 * th * s) - 1);
+
     /* ==========================================================================
        8. CANVAS PRIMITIVES
        ========================================================================== */
@@ -1469,6 +1563,7 @@
       const { ctx, W, H } = prepCanvas('colCanvas');
       if (state.view === 'compare') drawCompareView(ctx, W, H);
       else if (state.view === 'eigen') drawEigenView(ctx, W, H);
+      else if (state.view === 'secant') drawSecantView(ctx, W, H);
       else drawRealView(ctx, W, H);
     }
 
@@ -1717,6 +1812,131 @@
       });
     }
 
+    // Eccentrically loaded column (Secant formula model, lecture p.15–17) + mid-height stress distribution
+    function drawSecantView(ctx, W, H) {
+      canvasMeta = null;
+      const S = secantInfo(), r = state.P / D.Pcr, e = S.e;
+      const narrow = W < 620;
+      const colW = narrow ? W : W * 0.5;
+      const top = 150, bot = 62;          // room above the column for the info lines and the load arrow
+      const Hc = Math.max(80, (narrow ? H * 0.66 : H) - top - bot);
+      const cx = colW * 0.44, baseY = top + Hc, topY = baseY - Hc;
+      const LeMm = S.Le * 1000;
+      // horizontal exaggeration: the total offset e + v_max at P_Y fills ~30 % of the column area
+      const dRef = e > 0 ? e / Math.cos(secTheta(Math.min(S.PY, 0.97 * D.Pcr))) : 1;
+      const pxmm = 0.30 * colW / dRef;
+      const exag = pxmm * LeMm / Hc;
+      const maxRight = colW - cx - 14;
+      const eqCol = (s, vmm) => [cx + Math.min(vmm * pxmm, maxRight), baseY - s * Hc];
+      // straight axis and line of action of P
+      strokePath(ctx, [[cx, baseY], [cx, topY]], COL.faint, 2, [6, 6]);
+      const xl = cx - e * pxmm;
+      if (e > 0) {
+        ctx.strokeStyle = 'rgba(251,113,133,0.55)'; ctx.lineWidth = 1.5; ctx.setLineDash([4, 4]);
+        ctx.beginPath(); ctx.moveTo(xl, topY - 50); ctx.lineTo(xl, baseY + 50); ctx.stroke(); ctx.setLineDash([]);
+        txt(ctx, 'P 작용선', xl - 4, baseY + 58, COL.load, '10px Inter', 'right');
+      }
+      // deflected column, coloured by the stress on its concave (load-side) fibre
+      let clipped = false;
+      const N = 80, pts = [], sig = [];
+      for (let i = 0; i <= N; i++) {
+        const s = i / N, v = S.ok ? secantV(e, S.th, s) : 0;
+        if (v * pxmm > maxRight) clipped = true;
+        pts.push(eqCol(s, v));
+        sig.push(S.sigA * (1 + (e + v) * D.c / (D.r * D.r)));
+      }
+      strokeColumn(ctx, pts, i => S.ok ? stressColor(sig[i] / state.sy) : COL.faint, 6);
+      // rigid brackets carrying the eccentric load + pins at the column ends
+      for (const y of [topY, baseY]) {
+        ctx.strokeStyle = '#cbd5e1'; ctx.lineWidth = 5; ctx.lineCap = 'butt';
+        ctx.beginPath(); ctx.moveTo(cx + 3, y); ctx.lineTo(Math.min(xl, cx) - 3, y); ctx.stroke();
+        ctx.fillStyle = '#e2e8f0'; ctx.beginPath(); ctx.arc(cx, y, 4, 0, 2 * Math.PI); ctx.fill();
+      }
+      ctx.lineCap = 'round';
+      drawLoad(ctx, xl, topY - 4, `P = ${fmtF(state.P)}`);
+      arrow(ctx, xl, baseY + 46, xl, baseY + 4, COL.load, 3, 10);
+      txt(ctx, 'P', xl + 10, baseY + 34, COL.load, 'bold 12px Inter', 'left');
+      if (e > 0) {
+        dblArrow(ctx, xl, topY - 14, cx, topY - 14, COL.trial, 1.5);
+        txt(ctx, `e = ${fmtLen(e)}`, (xl + cx) / 2, topY - 20, COL.trial, 'bold 11px Inter');
+      }
+      // mid-height: v_max and the moment arm e + v_max
+      if (e > 0 && S.ok && state.P > 0) {
+        const ym = baseY - 0.5 * Hc, xm = eqCol(0.5, S.vmax)[0];
+        if (xm - cx > 8) { dblArrow(ctx, cx, ym - 12, xm, ym - 12, COL.col, 1.5); txt(ctx, `v_max = ${fmtLen(S.vmax)}`, xm + 8, ym - 8, COL.col, 'bold 11px Inter', 'left'); }
+        else txt(ctx, `v_max = ${fmtLen(S.vmax)}`, xm + 10, ym - 8, COL.col, 'bold 11px Inter', 'left');
+        dblArrow(ctx, xl, ym + 14, xm, ym + 14, COL.mom, 1.5);
+        txt(ctx, `팔 길이 e + v_max → M_max = ${fmtNum(S.Mmax)} kN·m`, xm + 8, ym + 18, COL.mom, '10px Inter', 'left');
+        ctx.fillStyle = COL.bad; ctx.beginPath(); ctx.arc(xm - 4, ym, 3.5, 0, 2 * Math.PI); ctx.fill();
+        txt(ctx, 'σmax', xm - 10, ym + 4, COL.bad, 'bold 10px Inter', 'right');
+      }
+      // headline
+      let st;
+      if (!(e > 0)) st = ['e = 0 : 이상기둥 (편심 없음)', COL.ok];
+      else if (!S.ok) st = ['P ≥ Pcr : 선형 해 발산', COL.bad];
+      else if (S.atY) st = ['σmax = σY : 최대하중 PY 도달', COL.warn];
+      else if (S.sigmax >= state.sy) st = ['σmax ≥ σY : 항복 (P > PY)', COL.bad];
+      else st = ['탄성 : σmax < σY (P < PY)', S.sigmax > 0.8 * state.sy ? COL.warn : COL.ok];
+      badge(ctx, st[0], 10, 10, st[1]);
+      txt(ctx, `ec/r² = ${fmtNum(S.eps, 3)}   kLe/2 = ${S.ok ? fmtNum(S.th, 3) + ' rad' : '≥ π/2'}`, 10, 48, COL.text, 'bold 11px Inter', 'left');
+      txt(ctx, `P/Pcr = ${fmtNum(r, 3)}   P/PY = ${e > 0 ? fmtNum(state.P / S.PY, 3) : '–'}`, 10, 64, COL.dim, '11px Inter', 'left');
+      txt(ctx, `모델: 양단 핀 편심기둥, Le = KL = ${fmtNum(S.Le, 2)} m${state.bc !== 'pp' || state.brace ? ` (${BCS[state.bc].name}${state.brace ? '+횡지지' : ''}, K = ${fmtNum(D.K, 2)})` : ''}`, 10, 80, COL.dim, '10px Inter', 'left');
+      if (e > 0) txt(ctx, `가로 방향 ×${fmtNum(exag, exag >= 100 ? 0 : 1)} 과장`, colW - 10, baseY + 58, COL.warn, '10px Inter', 'right');
+      if (clipped) txt(ctx, '⚠ 처짐이 커서 그림은 표시 한계에서 자름', colW / 2, top - 6, COL.bad, 'bold 11px Inter');
+      if (!(e > 0)) txt(ctx, "왼쪽 '② 편심하중 e'에서 e 또는 ec/r²를 입력하세요", cx, baseY + 30 + 28, COL.trial, 'bold 11px Inter');
+      if (e > 0 && !S.ok) txt(ctx, 'sec(kLe/2) → ∞ : P ≥ Pcr에서는 선형 이론의 처짐·응력이 발산', colW / 2, top - 6, COL.bad, 'bold 11px Inter');
+
+      // ---- mid-height stress distribution: axial + bending = combined (lecture p.17) ----
+      const sx = narrow ? 0 : colW, sy0 = narrow ? H * 0.66 : 0, sw = narrow ? W : W - colW, sh = narrow ? H * 0.34 : H;
+      const sigB = S.ok ? S.sigmax - S.sigA : Infinity;
+      const ref = Math.max(state.sy, S.ok ? Math.abs(S.sigmax) : 0, 1e-9);
+      const items = [
+        ['축방향 응력  P/A', S.sigA, S.sigA],
+        ['+ 굽힘응력  ±M_max·c/I', sigB, -sigB],
+        ['= 합응력 (Secant 공식)', S.sigmax, S.sigmin],
+      ];
+      txt(ctx, 'x = Le/2 단면의 응력 분포 (압축 +)', sx + sw / 2, sy0 + 18, COL.dim, 'bold 11px Inter');
+      const n = items.length;
+      // one common stress scale u [px per ref] chosen so every diagram fits its slot (tension drawn above, compression below)
+      const bhOf = () => narrow ? sh - 60 : (sh - 56) / n - 18;
+      const parts = items.map(([, sL, sR], k) => {
+        if (!isFinite(sL) || !isFinite(sR)) return { up: 0, down: 0.3 };
+        const down = Math.max(0, sL, sR) / ref, up = Math.max(0, -sL, -sR) / ref;
+        return { up, down: k === 2 ? Math.max(down, state.sy / ref) : down };     // keep the σ_Y line inside
+      });
+      const u = Math.max(8, Math.min(...parts.map(p => (bhOf() - 34) / Math.max(p.up + p.down, 0.05))));
+      for (let k = 0; k < n; k++) {
+        const bx = narrow ? sx + k * sw / n + 10 : sx + 30, bw = narrow ? sw / n - 20 : Math.min(220, sw - 70);
+        const by = narrow ? sy0 + 40 : sy0 + 44 + k * (sh - 56) / n;
+        const y0 = by + 16 + parts[k].up * u, hmax = Math.max(parts[k].up, parts[k].down) * u + 2;
+        const [label, sL, sR] = items[k];
+        txt(ctx, label, bx, by + 8, k === 2 ? COL.text : COL.dim, `${k === 2 ? 'bold ' : ''}10px Inter`, 'left');
+        // section (concave side = left, toward the load)
+        ctx.fillStyle = '#334155'; ctx.fillRect(bx, y0 - 4, bw, 4);
+        if (!isFinite(sL) || !isFinite(sR)) { txt(ctx, '∞', bx + bw / 2, y0 + 20, COL.bad, 'bold 13px Inter'); continue; }
+        const hpx = s => Math.max(-hmax, Math.min(hmax, s / ref * u));
+        ctx.fillStyle = 'rgba(56,189,248,0.25)'; ctx.strokeStyle = COL.col; ctx.lineWidth = 1.5;
+        ctx.beginPath(); ctx.moveTo(bx, y0); ctx.lineTo(bx, y0 + hpx(sL)); ctx.lineTo(bx + bw, y0 + hpx(sR)); ctx.lineTo(bx + bw, y0); ctx.closePath(); ctx.fill(); ctx.stroke();
+        for (let a = 0; a <= 6; a++) {
+          const xa = bx + a / 6 * bw, sa = sL + (sR - sL) * a / 6, ha = hpx(sa);
+          if (Math.abs(ha) > 6) {
+            if (sa >= 0) arrow(ctx, xa, y0 + ha, xa, y0 + 1, COL.col, 1, 4);      // compression: pushes on the section
+            else arrow(ctx, xa, y0 - 5, xa, y0 + ha, COL.bad, 1, 4);              // tension: pulls away from it
+          }
+        }
+        if (k === 2) {
+          ctx.strokeStyle = 'rgba(244,63,94,0.8)'; ctx.setLineDash([4, 3]); ctx.lineWidth = 1;
+          const yy = y0 + hpx(state.sy); ctx.beginPath(); ctx.moveTo(bx - 4, yy); ctx.lineTo(bx + bw + 4, yy); ctx.stroke(); ctx.setLineDash([]);
+          if (narrow) txt(ctx, `σY = ${fmtNum(state.sy, 0)}`, bx + bw, yy - 3, COL.bad, '9px Inter', 'right');
+          else txt(ctx, `σY = ${fmtNum(state.sy, 0)}`, bx + bw + 6, yy + 3, COL.bad, '9px Inter', 'left');
+        }
+        const fmtS = s => `${fmtNum(s, 1)}`;
+        txt(ctx, fmtS(sL), bx, y0 + hpx(sL) + (sL >= 0 ? 12 : -4), k === 2 ? (S.sigmax >= state.sy ? COL.bad : COL.text) : COL.dim, `${k === 2 ? 'bold ' : ''}10px Inter`, 'left');
+        txt(ctx, fmtS(sR), bx + bw, y0 + hpx(sR) + (sR >= 0 ? 12 : -4), COL.dim, '10px Inter', 'right');
+        if (k === 2) txt(ctx, `오목한 쪽 ← σmax   σmin → 볼록한 쪽 (MPa${S.sigmin < 0 ? ', 음수 = 인장' : ''})`, narrow ? sx + sw / 2 : bx + bw / 2, y0 + parts[k].down * u + 24, COL.dim, '9px Inter');
+      }
+    }
+
     /* ==========================================================================
        10. CHARTS
        ========================================================================== */
@@ -1768,6 +1988,7 @@
       const { ctx, W, H } = prepCanvas('chartCanvas');
       if (state.chart === 'char') drawCharChart(ctx, W, H);
       else if (state.chart === 'euler') drawEulerChart(ctx, W, H);
+      else if (state.chart === 'secant') drawSecantChart(ctx, W, H);
       else drawPathChart(ctx, W, H);
     }
 
@@ -1949,6 +2170,98 @@
       $('chartNote').innerHTML = `KL/r > (KL/r)<sub>c</sub> 이면 좌굴이 먼저(장주), 작으면 항복이 먼저(단주) 일어납니다. 현재 재료의 (KL/r)<sub>c</sub> = ${fmtNum(lc, 1)} (구조용 강 A-36 ≈ 89, 강의자료 p.9).`;
     }
 
+    // Secant formula charts: (a) P – v_max of the eccentric column (p.16), (b) P/A – KL/r at σ_max = σ_Y (p.17)
+    const secCurveCache = { key: '', curves: null };
+    function drawSecantChart(ctx, W, H) {
+      const S = secantInfo(), e = S.e, ratio = state.P / D.Pcr;
+      const side = W >= 640;
+      const g = 26, wA = side ? (W - 60 - g) * 0.5 : W - 70, hA = side ? H - 58 : (H - 100) * 0.5;
+      const boxA = { x: 52, y: 22, w: wA - 8, h: hA };
+      const boxB = side ? { x: 52 + wA + g + 8, y: 22, w: wA - 8, h: hA } : { x: 52, y: 22 + hA + 52, w: wA - 8, h: hA };
+
+      // (a) P – v_max
+      const vAt = (ee, P) => ee * (1 / Math.cos(secTheta(P)) - 1);
+      // x range: enough to show P_Y and the current point clearly, but still the rise toward Pcr
+      const Px = Math.min(0.9 * D.Pcr, Math.max(3 * S.PY, 0.35 * D.Pcr));
+      const xMaxA = e > 0 ? Math.max(vAt(e, Px), S.ok && S.vmax < 40 * e ? S.vmax * 1.08 : 0) : 0.01 * state.L * 1000;
+      const yMaxA = Math.max(1.12, Math.min(ratio * 1.05, 1.3));
+      const A = plotFrame(ctx, boxA, [0, xMaxA], [0, yMaxA], 'v_max (mm)', 'P / Pcr   (편심기둥의 P–v_max, p.16)');
+      clipBox(ctx, boxA);
+      ctx.strokeStyle = 'rgba(56,189,248,0.9)'; ctx.lineWidth = 2;                     // ideal column (e = 0)
+      ctx.beginPath(); ctx.moveTo(A.X(0), A.Y(0)); ctx.lineTo(A.X(0), A.Y(1)); ctx.lineTo(A.X(xMaxA), A.Y(1)); ctx.stroke();
+      if (e > 0) {
+        const curve = (ee, color, w, dashFrom) => {
+          ctx.lineWidth = w;
+          let prev = null;
+          for (let i = 0; i <= 240; i++) {
+            const P = 0.999 * D.Pcr * i / 240, pt = [A.X(vAt(ee, P)), A.Y(P / D.Pcr)];
+            if (prev) {
+              const beyond = dashFrom !== undefined && P > dashFrom;
+              ctx.strokeStyle = beyond ? 'rgba(244,63,94,0.85)' : color; ctx.setLineDash(beyond ? [5, 4] : []);
+              ctx.beginPath(); ctx.moveTo(prev[0], prev[1]); ctx.lineTo(pt[0], pt[1]); ctx.stroke();
+            }
+            prev = pt;
+          }
+          ctx.setLineDash([]);
+        };
+        curve(e / 4, 'rgba(45,212,191,0.35)', 1.5);
+        curve(e / 2, 'rgba(45,212,191,0.55)', 1.5);
+        curve(e, '#2dd4bf', 2.8, S.PY);
+        if (S.PY < D.Pcr) dot(ctx, A.X(vAt(e, S.PY)), A.Y(S.PY / D.Pcr), 5, '#fb923c');
+        if (S.ok && state.P > 0) dot(ctx, A.X(Math.min(S.vmax, xMaxA)), A.Y(Math.min(ratio, yMaxA)), 5, '#fff', 'rgba(255,255,255,0.25)');
+      }
+      ctx.restore();
+      txt(ctx, 'e = 0 (이상기둥)', A.X(xMaxA) - 4, A.Y(1) - 5, COL.col, 'bold 10px Inter', 'right');
+      if (e > 0) {
+        txt(ctx, `e = ${fmtLen(e)}`, A.X(vAt(e, 0.6 * Px)) + 6, A.Y(0.6 * Px / D.Pcr) + 12, '#2dd4bf', 'bold 10px Inter', 'left');
+        txt(ctx, 'e/2, e/4 → e → 0이면 이상기둥에 점근', A.X(xMaxA) - 4, A.Y(0.12), 'rgba(45,212,191,0.8)', '10px Inter', 'right');
+        if (S.PY < D.Pcr) txt(ctx, `PY : σmax = σY (= ${fmtNum(S.PY / D.Pcr, 3)} Pcr)`, A.X(vAt(e, S.PY)) + 8, A.Y(S.PY / D.Pcr) + 14, '#fb923c', 'bold 10px Inter', 'left');
+      } else txt(ctx, '편심 e를 입력하면 곡선이 나타납니다', boxA.x + boxA.w / 2, boxA.y + boxA.h * 0.6, COL.trial, 'bold 11px Inter');
+
+      // (b) P/A – KL/r with σ_max = σ_Y
+      const E = state.E * 1000, sy = state.sy;
+      const xMaxB = Math.max(200, D.KLr * 1.15);
+      const yMaxB = Math.max(sy * 1.2, Math.min(S.sigA * 1.1, sy * 2));
+      const B = plotFrame(ctx, boxB, [0, xMaxB], [0, yMaxB], 'KL / r', `P/A (MPa)   σmax = σY 일 때 (p.17)`);
+      const EPS = [0, 0.1, 0.5, 1.0, 1.5];
+      const curEps = e > 0 ? S.eps : null;
+      const ckey = `${E}|${sy}|${xMaxB.toFixed(2)}|${curEps === null ? '-' : curEps.toFixed(4)}`;
+      if (secCurveCache.key !== ckey) {
+        const list = EPS.map(ep => ({ ep, cur: false }));
+        if (curEps !== null && !EPS.some(ep => Math.abs(ep - curEps) < 0.005)) list.push({ ep: curEps, cur: true });
+        for (const c of list) { c.pts = []; for (let i = 0; i <= 160; i++) { const x = xMaxB * i / 160; c.pts.push([x, secantPA(x, c.ep, E, sy)]); } }
+        secCurveCache.key = ckey; secCurveCache.curves = list;
+      }
+      clipBox(ctx, boxB);
+      ctx.strokeStyle = 'rgba(56,189,248,0.45)'; ctx.lineWidth = 1.5; ctx.setLineDash([5, 5]); ctx.beginPath();   // Euler above σ_Y
+      for (let i = 0, first = true; i <= 160; i++) { const x = Math.max(1, xMaxB * i / 160), y = PI2 * E / (x * x); if (y < sy || y > yMaxB * 1.5) continue; first ? ctx.moveTo(B.X(x), B.Y(y)) : ctx.lineTo(B.X(x), B.Y(y)); first = false; }
+      ctx.stroke(); ctx.setLineDash([]);
+      for (const c of secCurveCache.curves) {
+        const isCur = curEps !== null && Math.abs(c.ep - curEps) < 0.005;
+        ctx.strokeStyle = isCur ? '#2dd4bf' : c.ep === 0 ? COL.col : 'rgba(148,163,184,0.75)';
+        ctx.lineWidth = isCur ? 2.8 : c.ep === 0 ? 2.2 : 1.5;
+        ctx.beginPath(); c.pts.forEach((p, i) => (i ? ctx.lineTo(B.X(p[0]), B.Y(p[1])) : ctx.moveTo(B.X(p[0]), B.Y(p[1])))); ctx.stroke();
+      }
+      ctx.strokeStyle = '#fff'; ctx.setLineDash([3, 3]); ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(B.X(D.KLr), boxB.y); ctx.lineTo(B.X(D.KLr), boxB.y + boxB.h); ctx.stroke(); ctx.setLineDash([]);
+      const PYA = S.PY * 1e3 / D.A;
+      dot(ctx, B.X(D.KLr), B.Y(PYA), 5, '#fb923c');
+      if (state.P > 0) dot(ctx, B.X(D.KLr), B.Y(Math.min(S.sigA, yMaxB)), 4, '#fff', 'rgba(255,255,255,0.25)');
+      ctx.restore();
+      for (const c of secCurveCache.curves) {
+        if (c.cur) continue;
+        const xLab = xMaxB * 0.03, yv = secantPA(xLab, c.ep, E, sy);
+        txt(ctx, c.ep === 0 ? 'ec/r² = 0' : `${c.ep}`, B.X(xLab) + 2, B.Y(yv) - 3, c.ep === 0 ? COL.col : COL.dim, '9px Inter', 'left');
+      }
+      txt(ctx, `PY/A = ${fmtNum(PYA, 1)} MPa`, B.X(D.KLr) + 7, B.Y(PYA) - 6, '#fb923c', 'bold 10px Inter', B.X(D.KLr) > boxB.x + boxB.w * 0.7 ? 'right' : 'left');
+      txt(ctx, `현재 KL/r = ${fmtNum(D.KLr, 1)}${curEps !== null ? `, ec/r² = ${fmtNum(curEps, 3)}` : ''}`, boxB.x + boxB.w - 4, boxB.y + 12, curEps !== null ? '#2dd4bf' : COL.text, 'bold 10px Inter', 'right');
+
+      $('chartNote').innerHTML = `왼쪽: 편심 e인 기둥은 하중을 가하자마자 휘고, P → P<sub>cr</sub>에서 처짐이 급증합니다. e가 작을수록 이상기둥(파란 꺾은선)에 가까워집니다. `
+        + `주황 점 P<sub>Y</sub>에서 σ<sub>max</sub> = σ<sub>Y</sub>가 되며, 그 위(빨간 점선)는 실제로는 항복 → 비탄성 거동입니다 (p.16). `
+        + `오른쪽: σ<sub>max</sub> = σ<sub>Y</sub>로 놓고 그린 P/A–KL/r 곡선 (현재 재료 E = ${fmtNum(state.E, 0)} GPa, σ<sub>Y</sub> = ${fmtNum(sy, 0)} MPa). 편심비 ec/r²가 클수록, KL/r이 작을수록 영향이 크고, KL/r이 크면 오일러 곡선에 가까워집니다. `
+        + `세로 점선(현재 KL/r)과 곡선이 만나는 점이 P<sub>Y</sub>/A — 강의자료 p.17의 '그래프로 최대하중 구하기' 방법입니다.`;
+    }
+
     /* ==========================================================================
        11. FORMULAS (KaTeX) — governing equation, P_cr, σ_cr, current state, post-buckling
        ========================================================================== */
@@ -2031,17 +2344,18 @@
       }
       $('fx-state').innerHTML = st.map(t => KX(t)).join('');
 
-      // imperfection, secant, post-buckling
+      // eccentric load — Secant formula (lecture p.15–18)
+      updateSecantFormulas();
+
+      // initial crookedness e0, post-buckling
       const info = simInfo(mainSim);
       const post = [];
       const e0 = state.e0;
       if (e0 > 0 && r < 1) {
-        post.push(String.raw`\text{초기 휨: } v_{max}\approx\frac{e_0}{1-P/P_{cr}}=\frac{${tn(e0)}}{1-${tn(r, 3)}}=${tn(e0 / (1 - r))}\,\text{mm}\quad(\text{비선형 해: }${tn(info.dmax * state.L * 1000)}\,\text{mm})`);
-        const kk = (D.K * state.L * 1000) / (2 * D.r) * Math.sqrt(state.P * 1e3 / (state.E * 1000 * D.A));
-        const sec = 1 / Math.cos(kk);
-        post.push(String.raw`\text{Secant 공식 }(e=e_0):\;\sigma_{max}=\frac{P}{A}\Big[1+\frac{ec}{r^2}\sec\Big(\frac{KL}{2r}\sqrt{\frac{P}{EA}}\Big)\Big]=${tn(state.P * 1e3 / D.A, 1)}\big[1+${tn(e0 * D.c / D.r ** 2, 3)}\times${tn(sec, 3)}\big]=${tn(state.P * 1e3 / D.A * (1 + e0 * D.c / D.r ** 2 * sec), 1)}\,\text{MPa}`);
+        post.push(String.raw`\text{초기 휨 (1차 모드 형상): } v_{max}\approx\frac{e_0}{1-P/P_{cr}}=\frac{${tn(e0)}}{1-${tn(r, 3)}}=${tn(e0 / (1 - r))}\,\text{mm}\quad(\text{비선형 해: }${tn(info.dmax * state.L * 1000)}\,\text{mm})`);
+        post.push(String.raw`\text{※ 초기 휨 }e_0\text{는 편심 }e\text{와 다릅니다: 편심기둥은 }v_{max}=e\,[\sec(kL_e/2)-1]\text{ (위 Secant 상자)}`);
       } else if (e0 > 0) {
-        post.push(String.raw`P\ge P_{cr}:\;\text{선형 증폭식 } \tfrac{e_0}{1-P/P_{cr}}\text{ 과 Secant 공식은 발산} \Rightarrow \text{대처짐(비선형) 해석 필요}`);
+        post.push(String.raw`P\ge P_{cr}:\;\text{선형 증폭식 } \tfrac{e_0}{1-P/P_{cr}}\text{ 은 발산} \Rightarrow \text{대처짐(비선형) 해석 필요}`);
       }
       if (state.bc === 'pp' && !cfg.brace) {
         const al = Math.abs(info.sh.th0), p = Math.sin(al / 2);
@@ -2052,6 +2366,33 @@
       }
       post.push(String.raw`\sigma_{max}=\frac{P}{A}+\frac{M_{max}c}{I}=${tn(info.sigAx, 1)}+${tn(info.sigmax - info.sigAx, 1)}=\mathbf{${tn(info.sigmax, 1)}\,\text{MPa}}\;\;(\sigma_Y=${tn(state.sy, 0)})`);
       $('fx-post').innerHTML = post.map(t => KX(t)).join('');
+    }
+
+    function updateSecantFormulas() {
+      const S = secantInfo(), U = fu(), u = forceUnit() === 'N' ? 1 : 1000;
+      const nonPP = state.bc !== 'pp' || state.brace;
+      $('fxSecName').textContent = nonPP ? `— ${BCS[state.bc].name}${state.brace ? ' + 횡지지' : ''}: L 대신 Le = KL = ${fmtNum(S.Le, 3)} m 사용` : '— 양단 핀';
+      const f = [
+        String.raw`\text{FBD: } M=-P(e+v)\;\Rightarrow\; EI\frac{d^2v}{dx^2}+Pv=-Pe\;\Rightarrow\; v=e\Big[\tan\frac{kL_e}{2}\sin kx+\cos kx-1\Big],\quad k=\sqrt{\frac{P}{EI}}`,
+        String.raw`v_{max}=e\Big[\sec\frac{kL_e}{2}-1\Big],\qquad M_{max}=P\,(e+v_{max})=Pe\sec\frac{kL_e}{2},\qquad \frac{kL_e}{2}=\frac{L_e}{2r}\sqrt{\frac{P}{EA}}=\frac{\pi}{2}\sqrt{\frac{P}{P_{cr}}}`,
+        String.raw`\sigma_{max}=\frac{P}{A}\Big[1+\frac{ec}{r^2}\sec\Big(\frac{L_e}{2r}\sqrt{\frac{P}{EA}}\Big)\Big]\quad(\textbf{Secant 공식},\;\; ec/r^2:\text{ 편심비})`,
+      ];
+      if (!(S.e > 0)) {
+        f.push(String.raw`e=0\;(\text{이상기둥}):\;\sigma_{max}=P/A,\;\; P_{max}=\min(P_{cr},\,\sigma_YA)=${tn(toFU(S.PY))}\,${U}\qquad\text{← 왼쪽 '② 편심하중 e'를 입력하면 값이 대입됩니다}`);
+      } else {
+        f.push(String.raw`\frac{ec}{r^2}=\frac{(${tn(S.e)})(${tn(D.c)})}{(${tn(D.r)})^2}=${tn(S.eps, 3)},\qquad \frac{L_e}{2r}=\frac{${tn(S.Le * 1000, 0)}}{2(${tn(D.r)})}=${tn(S.Le * 1000 / (2 * D.r), 2)}`);
+        if (state.P > 0 && S.ok) {
+          f.push(String.raw`\frac{kL_e}{2}=${tn(S.th, 4)}\,\text{rad},\;\; \sec=${tn(S.sec, 4)}\;\Rightarrow\; v_{max}=${tn(S.e)}\,[${tn(S.sec, 4)}-1]=${tn(S.vmax, 3)}\,\text{mm},\;\; M_{max}=${tn(S.Mmax, 3)}\,\text{kN·m}`);
+          f.push(String.raw`\sigma_{max}=${tn(S.sigA, 2)}\,[1+${tn(S.eps, 3)}\times${tn(S.sec, 4)}]=\mathbf{${tn(S.sigmax, 1)}\,\text{MPa}}\;\;${S.atY ? '=' : S.sigmax < state.sy ? '<' : '>'}\;\;\sigma_Y=${tn(state.sy, 0)}\,\text{MPa}`);
+        } else if (state.P > 0) {
+          f.push(String.raw`P\ge P_{cr}:\;\frac{kL_e}{2}\ge\frac{\pi}{2}\;\Rightarrow\;\sec\to\infty\;\Rightarrow\;\text{선형 이론의 처짐·응력 발산}`);
+        }
+        // maximum load: σ_max = σ_Y, solved by trial and error (same form as Example 13.4)
+        const beta = (S.Le * 1000 / (2 * D.r)) / Math.sqrt(state.E * 1000 * D.A / u);
+        f.push(String.raw`\textbf{최대하중 }P_Y\;(\sigma_{max}=\sigma_Y):\;\; ${tn(state.sy * D.A / u)}=P_Y\big[1+${tn(S.eps, 3)}\sec(${tn(beta, 5)}\sqrt{P_Y})\big]\;\;(P_Y:\ ${U})\;\Rightarrow\;\text{시행착오법}\;\Rightarrow\; P_Y=\mathbf{${tn(toFU(S.PY), 1)}\,${U}}`);
+        f.push(String.raw`P_Y=${tn(S.PY / D.Pcr, 3)}\,P_{cr}<P_{cr}\;\;(\text{실제 기둥의 }P_Y\text{는 항상 이상기둥의 }P_{cr}\text{보다 작다, p.17})${state.P > 0 ? `,\qquad P/P_Y=${tn(state.P / S.PY, 3)}` : ''}`);
+      }
+      $('fx-secant').innerHTML = f.map(t => KX(t)).join('');
     }
 
     /* ==========================================================================
@@ -2079,6 +2420,32 @@
         h = `<p>P<sub>cr</sub> = π²EI/(KL)² 이므로 유효길이 계수 K가 클수록(구속이 약할수록) 먼저 좌굴합니다: ${order}.</p>
              <p>현재 P = ${fmtNum(state.P / D.Ppp, 2)} P<sub>핀-핀</sub> → <span class="hl">${nb}개</span> 기둥이 좌굴했습니다. 같은 기둥이라도 고정-고정은 고정-자유보다 <b>16배</b> 큰 하중을 견딥니다.</p>
              <p>보라색 L<sub>e</sub>는 굽힘모멘트가 0인 두 변곡점 사이 거리(양단 핀 기둥으로 환산한 길이)입니다. 고정-자유 기둥은 아래로 L만큼 연장한 '가상의 핀-핀 기둥'의 절반으로 보면 L<sub>e</sub> = 2L 입니다 (강의자료 p.12).</p>` + yieldNote;
+      } else if (state.view === 'secant') {
+        const S = secantInfo(), U = forceUnit();
+        const distinct = `<p class="eig-intro"><b>세 가지 '실제 기둥' 조건 구분</b>: <b>편심 e</b> = 하중이 도심에서 e만큼 떨어져 <b>계속</b> 작용 (Secant 공식, p.15–17) · `
+          + `<b>초기 휨 e₀</b> = 기둥이 처음부터 굽어 있음 (처짐 증폭 e₀/(1−P/P<sub>cr</sub>)) · <b>외란</b> = 순간적으로 툭 건드림 → 안정/불안정 판정 (p.4–5). 외란은 편심하중이 아닙니다.</p>`;
+        const supp = state.bc !== 'pp' || state.brace
+          ? `<p>현재 지지조건은 ${BCS[state.bc].name}${state.brace ? ' + 중간 횡지지' : ''} (K = ${fmtNum(D.K, 3)})이므로, Secant 공식의 L 대신 <b>유효길이 L<sub>e</sub> = KL = ${fmtNum(S.Le, 3)} m</b>인 양단 핀 편심기둥으로 계산합니다 (예제 13.4: 고정–자유 → KL = 2L).</p>` : '';
+        if (!(S.e > 0)) {
+          title = '편심하중 (Secant 공식) — 편심 e를 입력하세요';
+          h = distinct + `<p>지금은 e = 0인 <b>이상기둥</b>입니다: 하중이 도심에 정확히 작용하므로 P &lt; P<sub>cr</sub>에서는 휘지 않고, σ<sub>max</sub> = P/A, 최대하중은 min(P<sub>cr</sub>, σ<sub>Y</sub>A) = ${fmtF(S.PY)}입니다.</p>`
+            + `<p>왼쪽 <b>'② 편심하중 e'</b>에서 e를 입력하거나 ec/r² 버튼(0.1, 0.5, 1.0, 1.5 — 강의자료 p.17 그래프의 곡선들)을 눌러 보세요. 헤더의 <b>⑧ 편심하중 (예제 13.4)</b>은 교재 예제를 그대로 재현합니다.</p>` + supp;
+        } else if (!S.ok) {
+          title = `P ≥ Pcr : 편심기둥의 선형 해가 발산 (e = ${fmtLen(S.e)})`;
+          h = distinct + `<p>kL<sub>e</sub>/2 ≥ π/2이면 sec(kL<sub>e</sub>/2) → ∞이므로 처짐 v<sub>max</sub> = e[sec(kL<sub>e</sub>/2) − 1]과 σ<sub>max</sub>가 발산합니다. 실제 기둥은 그 전에 P<sub>Y</sub> = ${fmtF(S.PY)} (= ${fmtNum(S.PY / D.Pcr, 3)} P<sub>cr</sub>)에서 이미 항복합니다.</p>` + supp;
+        } else {
+          const rY = state.P / S.PY;
+          title = `편심하중 기둥: e = ${fmtLen(S.e)} (ec/r² = ${fmtNum(S.eps, 3)}), P = ${fmtNum(state.P / D.Pcr, 3)} Pcr`;
+          const P2 = 2 * state.P, S2 = P2 < D.Pcr ? secantInfo(P2) : null;
+          h = distinct
+            + `<p>하중이 도심에서 e만큼 떨어져 작용하면 처음부터 굽힘모멘트 <b>M = −P(e + v)</b>가 생깁니다. 그래서 이상기둥처럼 P<sub>cr</sub>에서 갑자기 좌굴하지 않고, <b>하중을 가하자마자 휘기 시작</b>합니다 (p.15).</p>`
+            + `<p>현재: kL<sub>e</sub>/2 = ${fmtNum(S.th, 3)} rad, sec = ${fmtNum(S.sec, 3)} → v<sub>max</sub> = e[sec − 1] = <b>${fmtLen(S.vmax)}</b>, M<sub>max</sub> = Pe·sec = <b>${fmtNum(S.Mmax)} kN·m</b>, `
+            + `σ<sub>max</sub> = P/A[1 + (ec/r²)sec] = ${fmtNum(S.sigA, 1)} × [1 + ${fmtNum(S.eps, 3)} × ${fmtNum(S.sec, 3)}] = <b class="${S.sigmax >= state.sy ? 'text-rose-600' : ''}">${fmtNum(S.sigmax, 1)} MPa</b> (σ<sub>Y</sub> = ${fmtNum(state.sy, 0)} MPa).</p>`
+            + `<p><span class="hl">최대하중 P<sub>Y</sub> = ${fmtF(S.PY)} (= ${fmtNum(S.PY / D.Pcr, 3)} P<sub>cr</sub>)</span>: σ<sub>max</sub> = σ<sub>Y</sub>가 되는 하중으로, 식이 P에 대해 비선형이라 시행착오법으로 구합니다 (수식 창 참고). `
+            + `<b>실제 기둥의 P<sub>Y</sub>는 항상 이상기둥의 P<sub>cr</sub>보다 작습니다</b> (p.17). 현재 P/P<sub>Y</sub> = ${fmtNum(rY, 3)} → ${S.atY ? '<b class="text-amber-600">정확히 최대하중 (σ<sub>max</sub> = σ<sub>Y</sub>)</b>' : rY < 1 ? '탄성 범위' : '<span class="text-rose-600 font-bold">이미 항복 (탄성 해석 한계)</span>'}.</p>`
+            + (S2 ? `<p><b>비선형 (중첩 불가)</b>: P를 두 배(${fmtF(P2)})로 하면 v<sub>max</sub>는 ${fmtNum(S2.vmax / S.vmax, 2)}배, 굽힘응력은 ${fmtNum((S2.sigmax - S2.sigA) / (S.sigmax - S.sigA), 2)}배가 됩니다 — M이 처짐 v에 의존하기 때문입니다 (p.16).</p>` : '')
+            + supp;
+        }
       } else if (state.view === 'eigen') {
         const im = eigMatch();
         if (state.P <= 0) { title = '고유치 문제'; h = `<p>하중을 올려 보세요. 점선은 미분방정식과 '마지막 하나를 뺀' 경계조건을 만족하는 시행해입니다.</p>`; }
@@ -2147,6 +2514,21 @@
       $('statState').style.color = st.bg === COL.ok ? '#059669' : st.bg === COL.warn ? '#d97706' : st.bg === COL.bad ? '#e11d48' : '#9333ea';
       const nUn = D.Pn.filter(p => state.P > p * 1.004).length;
       $('statStateSub').textContent = `불안정 모드 ${nUn}개 · 실제 거동 기준`;
+      if (state.view === 'secant' && state.ecc > 0) {      // Secant tab: report the eccentric-column values
+        const S = secantInfo();
+        $('statDefl').textContent = S.ok ? fmtLen(S.vmax) : '∞';
+        $('statDeflSub').innerHTML = `Secant: v<sub>max</sub> = e[sec(kL<sub>e</sub>/2) − 1], e = ${fmtLen(S.e)}`;
+        $('statStress').textContent = S.ok ? `${fmtNum(S.sigmax, 1)} MPa` : '∞';
+        $('statStress').className = 'text-lg font-extrabold ' + (!S.ok || S.sigmax >= state.sy ? 'text-rose-600' : S.sigmax > 0.7 * state.sy ? 'text-amber-500' : 'text-orange-600');
+        $('statStressSub').innerHTML = `Secant 공식 · σ<sub>Y</sub> = ${fmtNum(state.sy, 0)} MPa${S.ok ? ` (${fmtNum(S.sigmax / state.sy * 100, 0)}%)` : ''}`;
+        const yielded = !S.ok || (S.sigmax >= state.sy && !S.atY);
+        $('statState').textContent = !S.ok ? 'P ≥ Pcr (선형 해 발산)' : S.atY ? '최대하중 (σmax = σY)' : yielded ? '항복 (σmax > σY)' : '탄성 (σmax < σY)';
+        $('statState').style.color = yielded ? '#e11d48' : S.atY || S.sigmax > 0.8 * state.sy ? '#d97706' : '#059669';
+        if (S.atY) $('statStress').className = 'text-lg font-extrabold text-amber-500';
+        $('statStateSub').textContent = `PY = ${fmtF(S.PY)} · P/PY = ${fmtNum(state.P / S.PY, 3)}`;
+      } else if (state.view === 'secant') {
+        $('statDeflSub').innerHTML = `e = 0 (이상기둥) · 실제 거동 기준`;
+      }
     }
 
     /* ==========================================================================
@@ -2159,6 +2541,7 @@
       let m;
       if (state.view === 'compare') m = 5 * D.Ppp / D.Pcr;
       else if (state.view === 'eigen') m = Math.min(12, Math.max(3, 1.25 * (D.Pn[1] || 4 * D.Pcr) / D.Pcr));
+      else if (state.view === 'secant') m = 1.1;           // the linear eccentric-column solution diverges at Pcr
       else m = 2.5;
       return Math.max(m, state.P / D.Pcr * 1.0001);
     }
@@ -2193,19 +2576,35 @@
       }
       if (state.view === 'compare') D.cmp.forEach(c => marks.push({ p: c.Pcr, lbl: BCS[c.bc].name.replace(/ /g, ''), cmp: true,
         pcr: !state.brace && c.bc === state.bc, tip: `${BCS[c.bc].name} 기둥의 Pcr = ${fmtF(c.Pcr)}` }));
+      if (state.view === 'secant' && state.ecc > 0) {
+        const PY = secantPY(state.ecc * D.c / (D.r * D.r));
+        marks.push({ p: PY, lbl: 'P<sub>Y</sub>', py: true, tip: `PY = ${fmtF(PY)} : 편심하중에서 σmax = σY가 되는 하중 (Secant 공식)` });
+      }
       for (const m of marks) {
         if (m.p > pmax * 1.0001) continue;
         const f = m.p / pmax;
         const rel = state.P / m.p;
         const col = Math.abs(rel - 1) < 0.004 ? '#d97706' : rel > 1 ? '#e11d48' : '#059669';
         const bg = Math.abs(rel - 1) < 0.004 ? '#fef3c7' : rel > 1 ? '#ffe4e6' : '#d1fae5';
-        html += `<div class="tick${m.pcr ? ' pcr' : ''}" style="left:${(f * 100).toFixed(2)}%" onclick="stopRamp();setLoad(${m.p});paintParams();" title="${m.tip}">
+        html += `<div class="tick${m.pcr ? ' pcr' : ''}${m.py ? ' py' : ''}" data-f="${f}" onclick="stopRamp();setLoad(${m.p});paintParams();" title="${m.tip}">
           <span class="bar" style="background:${col}"></span><span class="lbl" style="color:${col};background:${bg}${m.cmp ? ';font-size:9px' : ''}">${m.lbl}</span></div>`;
       }
       el.innerHTML = html;
+      el.classList.toggle('two-row', marks.some(m => m.py && m.p <= pmax * 1.0001));
+      layoutRuler();
       const chip = `<span class="pcr-swatch"></span>P<sub>cr</sub> = P₁ = ${fmtF(D.Pcr)}`;
       if ($('pcrChip').innerHTML !== chip) $('pcrChip').innerHTML = chip;
       buildEigTable();
+    }
+    // Place every tick exactly under the P slider's thumb position for that load: the thumb centre travels
+    // from tw/2 to (width − tw/2) of the slider box, which itself is narrower than the ruler row.
+    function layoutRuler() {
+      const el = $('eigRuler'), sl = $('pSlider');
+      const rs = sl.getBoundingClientRect(), rr = el.getBoundingClientRect();
+      if (!(rs.width > 0) || !(rr.width > 0)) return;          // hidden (panel minimized)
+      const tw = parseFloat(getComputedStyle(sl).getPropertyValue('--tw')) || 22;
+      const x0 = rs.left - rr.left + tw / 2, span = rs.width - tw;
+      el.querySelectorAll('.tick').forEach(t => { t.style.left = `${(x0 + span * parseFloat(t.dataset.f)).toFixed(1)}px`; });
     }
 
     // --- eigenvalue cards: P1 (= Pcr), P2, P3, P4 with mode shape, value and comparison with the current P ---
@@ -2273,6 +2672,7 @@
       braceA: { get: () => state.braceA, set: v => { state.braceA = clamp(v, 0.1, 0.9); onConfigChanged(); }, lo: () => 0.1, hi: () => 0.9 },
       L:      { get: () => state.L, set: v => { state.L = Math.max(0.05, v); onPhysChanged(false); }, lo: () => 0.2, hi: () => Math.max(10, state.L) },
       e0:     { get: () => state.e0, set: v => { state.e0 = Math.max(0, v); needText = true; needChart = true; }, lo: () => 0, hi: () => Math.max(state.L * 1000 / 100, state.e0) },
+      ecc:    { get: () => state.ecc, set: v => setEcc(v), lo: () => 0, hi: () => Math.max(2 * D.r * D.r / D.c, state.ecc) },
       scale:  { get: () => state.scale, set: v => { state.scale = Math.max(1, v); }, lo: () => 1, hi: () => Math.max(20, state.scale) },
     };
     function paintParams(except) {
@@ -2292,7 +2692,7 @@
         }
         if (nb && nb !== except) {
           const a = Math.abs(v);
-          nb.value = row.dataset.field === 'P' || row.dataset.field === 'e0' ? +v.toFixed(a >= 100 ? 1 : a >= 1 ? 3 : 4) : +v.toFixed(3);
+          nb.value = ['P', 'e0', 'ecc'].includes(row.dataset.field) ? +v.toFixed(a >= 100 ? 1 : a >= 1 ? 3 : 4) : +v.toFixed(3);
         }
       });
       $('pUnit').textContent = forceUnit();
@@ -2375,6 +2775,8 @@
     }
     function updateSection() {
       const lc = D.lamC, longCol = D.KLr >= lc;
+      $('secBadge').textContent = `L = ${fmtNum(state.L)} m · KL/r = ${fmtNum(D.KLr, 1)}`;   // visible when the panel is minimized
+      updateEccNote();
       $('secSummary').innerHTML = `
         <span>I<sub>min</sub> = ${D.I >= 1e5 ? fmtNum(D.I / 1e6, 4) + '×10⁶' : fmtNum(D.I, 1)} mm⁴</span><span>A = ${fmtNum(D.A, 1)} mm²</span>
         <span>r = √(I/A) = ${fmtNum(D.r)} mm</span><span>EI = ${fmtEI(D.EI)}</span>
@@ -2407,6 +2809,20 @@
       $('chartZoom').addEventListener('change', () => { state.zoom = $('chartZoom').checked; needChart = true; });
     }
     function setE0Frac(f) { state.e0 = f * state.L * 1000; paintParams(); needText = true; needChart = true; }
+    // eccentricity e (Secant formula): changing it opens the Secant view, where it has its effect
+    function setEcc(v) {
+      state.ecc = Math.max(0, isFinite(v) ? v : 0);
+      if (state.view !== 'secant') setView('secant');
+      updateEccNote(); buildRuler();
+      needText = true; needChart = true;
+    }
+    function setEccRatio(eps) { setEcc(eps * D.r * D.r / D.c); paintParams(); }
+    function updateEccNote() {
+      const eps = state.ecc * D.c / (D.r * D.r);
+      $('eccNote').innerHTML = state.ecc > 0
+        ? `편심비 <b>ec/r² = ${fmtNum(eps, 3)}</b> (c = ${fmtNum(D.c)} mm, r = ${fmtNum(D.r)} mm) → P<sub>Y</sub> = ${fmtF(secantPY(eps))} (= ${fmtNum(secantPY(eps) / D.Pcr, 3)} P<sub>cr</sub>). 'Secant 공식' 탭에서 확인하세요.`
+        : `하중 P가 도심에서 e만큼 떨어져 작용 → M = −P(e+v). 편심 e를 바꾸면 'Secant 공식' 탭이 열립니다.`;
+    }
 
     // --- disturbance ---
     function kick(dir) {
@@ -2426,13 +2842,15 @@
       real: '실제 거동: 단일 모드 동역학 + 비선형 elastica. 기둥의 왼쪽/오른쪽을 클릭하면 그 방향으로 외란이 가해집니다. 선 색 = 응력비 σ/σY (파랑→노랑→빨강: 항복).',
       eigen: '고유치 문제: 점선 = 시행해(미분방정식+나머지 경계조건), 빨간 표시 = 위배되는 경계조건. 오른쪽 = 고유값 Pn(P₁ = Pcr)과 n차 모드 형상, 그리고 현재 P와의 대소 비교.',
       compare: '같은 기둥(같은 E·I·L)에 같은 하중 P — 지지조건만 다릅니다. 기둥을 클릭하면 외란이 가해집니다.',
+      secant: '편심하중 (Secant 공식, 강의자료 p.15–17): 하중 P가 도심에서 e만큼 떨어진 강체 브래킷으로 작용하는 양단 핀 기둥(길이 Le = KL). 선 색 = 오목한 쪽 응력 σ/σY. 가로 방향은 크게 과장해 그렸습니다.',
     };
     function setView(v) {
       state.view = v;
-      ['real', 'eigen', 'compare'].forEach(k => $('vt-' + k).classList.toggle('active', k === v));
+      ['real', 'eigen', 'compare', 'secant'].forEach(k => $('vt-' + k).classList.toggle('active', k === v));
       $('viewHint').textContent = VIEW_HINT[v];
       if (v === 'compare') D.cmp.forEach(c => settleSim(cmpSims[c.bc]));
-      setChart(v === 'eigen' ? 'char' : 'path');
+      setChart(v === 'eigen' ? 'char' : v === 'secant' ? 'secant' : 'path');
+      $('scaleRow').style.display = v === 'secant' ? 'none' : 'flex';   // the Secant view scales itself
       $('ratioLabel').innerHTML = 'P / P<sub>cr</sub>';
       if (v === 'eigen') $('eigHelp').open = true;   // show what P1, P2, P3 … mean when the eigenvalue view opens
       paintParams(); buildRuler();
@@ -2440,7 +2858,7 @@
     }
     function setChart(c) {
       state.chart = c;
-      ['path', 'char', 'euler'].forEach(k => {
+      ['path', 'char', 'euler', 'secant'].forEach(k => {
         $('ct-' + k).className = k === c ? 'px-3 py-1.5 text-xs font-semibold rounded-lg bg-blue-600 text-white shadow-sm transition'
           : 'px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-100 rounded-lg transition';
       });
@@ -2471,7 +2889,7 @@
     const RULER = { mat: 'pc', sec: 'rect', b: 30, h: 2, L: 0.3 };
     function applyPreset(name) {
       stopRamp();
-      const base = { bc: 'pp', brace: false, braceA: 0.5, e0: 0, noise: true, dir: 1, scale: 1 };
+      const base = { bc: 'pp', brace: false, braceA: 0.5, e0: 0, ecc: 0, noise: true, dir: 1, scale: 1 };
       let view = 'real', chart = 'path', ratio = 0, settle = true, zoom = false, ratioOf = null;
       switch (name) {
         case 'critical': setColumn({ ...base, ...STEEL }); ratio = 1.0; break;
@@ -2481,6 +2899,9 @@
         case 'compare': setColumn({ ...base, ...RULER }); view = 'compare'; ratioOf = 'pp'; ratio = 1.1; break;
         case 'imperfect': setColumn({ ...base, ...STEEL, e0: 6 }); ratio = 0.8; zoom = true; break;
         case 'short': setColumn({ ...base, ...STEEL, L: 0.6 }); chart = 'euler'; ratio = -1; break;
+        // Example 13.4: A36 W200×59 (x-x axis: A = 7580 mm², c = 105 mm, r = 89.9 mm → I = A r²), fixed–free L = 4 m, e = 200 mm
+        case 'secant': setColumn({ ...base, mat: 'a36', sec: 'custom', Ic: +(7580 * 89.9 * 89.9 / 1e6).toFixed(3), Ac: 7580, cc: 105, L: 4, bc: 'ff', ecc: 200 });
+          view = 'secant'; chart = 'secant'; ratio = -2; break;
       }
       state.zoom = zoom; $('chartZoom').checked = zoom;
       mainSim = null;
@@ -2488,6 +2909,7 @@
       recompute();
       state.view = view;
       if (ratio === -1) state.P = D.Py;
+      else if (ratio === -2) state.P = secantPY(state.ecc * D.c / (D.r * D.r));   // load at which σ_max = σ_Y
       else state.P = ratio * (ratioOf ? D.Ppp : D.Pcr);
       D.lam = state.P * state.L ** 2 / D.EI;
       if (settle) { settleSim(mainSim); D.cmp.forEach(c => settleSim(cmpSims[c.bc])); }
@@ -2608,7 +3030,7 @@
       const dt = lastT ? Math.min(0.05, (t - lastT) / 1000) : 1 / 60;
       lastT = t; animT += dt;
       if (state.ramp) {
-        const pmax = pMaxRatio() * D.Pcr, rate = (state.view === 'compare' ? 5 * D.Ppp : 2.5 * D.Pcr) / 16;
+        const pmax = pMaxRatio() * D.Pcr, rate = (state.view === 'compare' ? 5 * D.Ppp : state.view === 'secant' ? 1.1 * D.Pcr : 2.5 * D.Pcr) / 16;
         let P = state.P + state.ramp * rate * dt;
         if (P <= 0 || P >= pmax) { P = clamp(P, 0, pmax); stopRamp(); }
         setLoad(P); paintParams();
@@ -2647,6 +3069,7 @@
       if (window.ResizeObserver) {
         new ResizeObserver(() => drawChart()).observe($('chartWrap'));
         new ResizeObserver(() => drawColumnCanvas()).observe($('colWrap'));
+        new ResizeObserver(() => layoutRuler()).observe($('pSlider'));     // keep the Pn / Pcr ticks under the thumb
       }
       initColumnSplitter();
       initVResizers();
